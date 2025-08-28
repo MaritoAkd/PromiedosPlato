@@ -33,6 +33,14 @@ export default function FixtureTab() {
     match.phase.name === "Cuartos de Final"
   ) || [];
 
+  const semisMatches = matches?.filter((match: MatchWithTeams) => 
+    match.phase.name === "Semifinales"
+  ) || [];
+
+  const finalMatches = matches?.filter((match: MatchWithTeams) => 
+    match.phase.name === "Final"
+  ) || [];
+
   const nextPhase = () => {
     const phases = ["groups", "quarters", "semis", "final"];
     const currentIndex = phases.indexOf(currentPhase);
@@ -117,47 +125,149 @@ export default function FixtureTab() {
         </div>
 
         {/* Bracket Display */}
-        {currentPhase === "quarters" && (
-          <div data-testid="quarters-bracket">
-            <h4 className="font-bold mb-2 text-sm">Cuartos de Final</h4>
-            <div className="grid grid-cols-2 gap-4">
-              {quartersMatches.map((match: MatchWithTeams) => (
-                <div key={match.id} className="border border-gray-300 p-2 bg-white text-xs" data-testid={`match-${match.id}`}>
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center">
-                      <img 
-                        src={match.homeTeam.country.flagUrl || `https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12`}
-                        alt={match.homeTeam.country.code} 
-                        className="w-4 h-3 mr-1"
-                        data-testid={`home-flag-${match.id}`}
-                      />
-                      <span data-testid={`home-team-${match.id}`}>{match.homeTeam.shortName}</span>
+        {(currentPhase === "quarters" || currentPhase === "semis" || currentPhase === "final") && (
+          <div className="bracket-container" data-testid="tournament-bracket">
+            {/* Tournament Bracket - Promiedos Style */}
+            <div className="bg-white border border-gray-300 p-4">
+              <h4 className="font-bold mb-4 text-sm text-center bg-blue-600 text-white p-2">CUADRO DE ELIMINATORIAS</h4>
+              
+              <div className="bracket-grid" style={{display: 'grid', gridTemplateColumns: '1fr 80px 1fr 80px 1fr', gap: '10px', alignItems: 'center'}}>
+                
+                {/* CUARTOS - Columna izquierda */}
+                <div className="quarters-left">
+                  <div className="text-xs font-bold mb-2 text-center">CUARTOS DE FINAL</div>
+                  {quartersMatches.slice(0, 2).map((match: MatchWithTeams, idx: number) => (
+                    <div key={match.id} className="match-box border border-gray-400 mb-2 bg-gray-50" data-testid={`quarter-${match.id}`}>
+                      <div className="match-team flex justify-between items-center p-1 text-xs border-b border-gray-300">
+                        <div className="flex items-center">
+                          <img src={match.homeTeam.country.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.homeTeam.country.code} className="w-4 h-3 mr-1" />
+                          <span className={match.isPlayed && match.homeScore! > match.awayScore! ? 'font-bold' : ''}>{match.homeTeam.shortName}</span>
+                        </div>
+                        <span className="font-bold">{match.isPlayed ? match.homeScore : '-'}</span>
+                      </div>
+                      <div className="match-team flex justify-between items-center p-1 text-xs">
+                        <div className="flex items-center">
+                          <img src={match.awayTeam.country.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.awayTeam.country.code} className="w-4 h-3 mr-1" />
+                          <span className={match.isPlayed && match.awayScore! > match.homeScore! ? 'font-bold' : ''}>{match.awayTeam.shortName}</span>
+                        </div>
+                        <span className="font-bold">{match.isPlayed ? match.awayScore : '-'}</span>
+                      </div>
                     </div>
-                    <span className="font-bold" data-testid={`home-score-${match.id}`}>
-                      {match.isPlayed ? match.homeScore : "-"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <img 
-                        src={match.awayTeam.country.flagUrl || `https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12`}
-                        alt={match.awayTeam.country.code} 
-                        className="w-4 h-3 mr-1"
-                        data-testid={`away-flag-${match.id}`}
-                      />
-                      <span data-testid={`away-team-${match.id}`}>{match.awayTeam.shortName}</span>
-                    </div>
-                    <span className="font-bold" data-testid={`away-score-${match.id}`}>
-                      {match.isPlayed ? match.awayScore : "-"}
-                    </span>
-                  </div>
-                  {match.matchDate && (
-                    <div className="text-gray-600 mt-1" data-testid={`match-date-${match.id}`}>
-                      {new Date(match.matchDate).toLocaleDateString()} - {new Date(match.matchDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                    </div>
-                  )}
+                  ))}
                 </div>
-              ))}
+
+                {/* SEMIFINAL - Línea izquierda */}
+                <div className="connector-left flex flex-col items-center">
+                  <div className="border-l-2 border-gray-400 h-8"></div>
+                  <div className="border-b-2 border-gray-400 w-full"></div>
+                  <div className="border-l-2 border-gray-400 h-8"></div>
+                </div>
+
+                {/* SEMIFINALES */}
+                <div className="semis-center">
+                  <div className="text-xs font-bold mb-2 text-center">SEMIFINALES</div>
+                  {semisMatches.slice(0, 1).map((match: MatchWithTeams) => (
+                    <div key={match.id} className="match-box border border-gray-400 mb-8 bg-yellow-50" data-testid={`semi-${match.id}`}>
+                      <div className="match-team flex justify-between items-center p-1 text-xs border-b border-gray-300">
+                        <div className="flex items-center">
+                          <img src={match.homeTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.homeTeam?.country?.code} className="w-4 h-3 mr-1" />
+                          <span className={match.isPlayed && match.homeScore! > match.awayScore! ? 'font-bold' : ''}>{match.homeTeam?.shortName || 'TBD'}</span>
+                        </div>
+                        <span className="font-bold">{match.isPlayed ? match.homeScore : '-'}</span>
+                      </div>
+                      <div className="match-team flex justify-between items-center p-1 text-xs">
+                        <div className="flex items-center">
+                          <img src={match.awayTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.awayTeam?.country?.code} className="w-4 h-3 mr-1" />
+                          <span className={match.isPlayed && match.awayScore! > match.homeScore! ? 'font-bold' : ''}>{match.awayTeam?.shortName || 'TBD'}</span>
+                        </div>
+                        <span className="font-bold">{match.isPlayed ? match.awayScore : '-'}</span>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {semisMatches.slice(1, 2).map((match: MatchWithTeams) => (
+                    <div key={match.id} className="match-box border border-gray-400 bg-yellow-50" data-testid={`semi-${match.id}`}>
+                      <div className="match-team flex justify-between items-center p-1 text-xs border-b border-gray-300">
+                        <div className="flex items-center">
+                          <img src={match.homeTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.homeTeam?.country?.code} className="w-4 h-3 mr-1" />
+                          <span className={match.isPlayed && match.homeScore! > match.awayScore! ? 'font-bold' : ''}>{match.homeTeam?.shortName || 'TBD'}</span>
+                        </div>
+                        <span className="font-bold">{match.isPlayed ? match.homeScore : '-'}</span>
+                      </div>
+                      <div className="match-team flex justify-between items-center p-1 text-xs">
+                        <div className="flex items-center">
+                          <img src={match.awayTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.awayTeam?.country?.code} className="w-4 h-3 mr-1" />
+                          <span className={match.isPlayed && match.awayScore! > match.homeScore! ? 'font-bold' : ''}>{match.awayTeam?.shortName || 'TBD'}</span>
+                        </div>
+                        <span className="font-bold">{match.isPlayed ? match.awayScore : '-'}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* FINAL - Línea central */}
+                <div className="connector-center flex flex-col items-center">
+                  <div className="border-l-2 border-gray-400 h-8"></div>
+                  <div className="border-b-2 border-gray-400 w-full"></div>
+                  <div className="border-l-2 border-gray-400 h-8"></div>
+                </div>
+
+                {/* FINAL */}
+                <div className="final-right">
+                  <div className="text-xs font-bold mb-2 text-center">FINAL</div>
+                  {finalMatches.map((match: MatchWithTeams) => (
+                    <div key={match.id} className="match-box border border-gray-400 bg-green-50" data-testid={`final-${match.id}`} style={{marginTop: '40px'}}>
+                      <div className="match-team flex justify-between items-center p-2 text-xs border-b border-gray-300">
+                        <div className="flex items-center">
+                          <img src={match.homeTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.homeTeam?.country?.code} className="w-4 h-3 mr-1" />
+                          <span className={match.isPlayed && match.homeScore! > match.awayScore! ? 'font-bold text-green-700' : ''}>{match.homeTeam?.shortName || 'TBD'}</span>
+                        </div>
+                        <span className="font-bold">{match.isPlayed ? match.homeScore : '-'}</span>
+                      </div>
+                      <div className="match-team flex justify-between items-center p-2 text-xs">
+                        <div className="flex items-center">
+                          <img src={match.awayTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.awayTeam?.country?.code} className="w-4 h-3 mr-1" />
+                          <span className={match.isPlayed && match.awayScore! > match.homeScore! ? 'font-bold text-green-700' : ''}>{match.awayTeam?.shortName || 'TBD'}</span>
+                        </div>
+                        <span className="font-bold">{match.isPlayed ? match.awayScore : '-'}</span>
+                      </div>
+                      {match.matchDate && (
+                        <div className="text-center text-gray-600 p-1 text-xs bg-gray-100">
+                          {new Date(match.matchDate).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Parte derecha - Cuartos restantes */}
+              <div className="mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div></div> {/* Spacer */}
+                  <div className="quarters-right">
+                    <div className="text-xs font-bold mb-2 text-center">CUARTOS DE FINAL</div>
+                    {quartersMatches.slice(2, 4).map((match: MatchWithTeams) => (
+                      <div key={match.id} className="match-box border border-gray-400 mb-2 bg-gray-50" data-testid={`quarter-${match.id}`}>
+                        <div className="match-team flex justify-between items-center p-1 text-xs border-b border-gray-300">
+                          <div className="flex items-center">
+                            <img src={match.homeTeam.country.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.homeTeam.country.code} className="w-4 h-3 mr-1" />
+                            <span className={match.isPlayed && match.homeScore! > match.awayScore! ? 'font-bold' : ''}>{match.homeTeam.shortName}</span>
+                          </div>
+                          <span className="font-bold">{match.isPlayed ? match.homeScore : '-'}</span>
+                        </div>
+                        <div className="match-team flex justify-between items-center p-1 text-xs">
+                          <div className="flex items-center">
+                            <img src={match.awayTeam.country.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.awayTeam.country.code} className="w-4 h-3 mr-1" />
+                            <span className={match.isPlayed && match.awayScore! > match.homeScore! ? 'font-bold' : ''}>{match.awayTeam.shortName}</span>
+                          </div>
+                          <span className="font-bold">{match.isPlayed ? match.awayScore : '-'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -165,10 +275,7 @@ export default function FixtureTab() {
         {/* Group Tables */}
         <div className="mt-6">
           <h4 className="font-bold mb-3 text-sm" data-testid="groups-title">Fase de Grupos</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <GroupTable groupName="Grupo A" />
-            <GroupTable groupName="Grupo B" />
-          </div>
+          <DynamicGroupTables />
           
           {/* Legend */}
           <div className="mt-4 text-xs">
@@ -244,10 +351,39 @@ export default function FixtureTab() {
   );
 }
 
-function GroupTable({ groupName }: { groupName: string }) {
+function DynamicGroupTables() {
+  const { data: phases = [] } = useQuery<Phase[]>({
+    queryKey: ['/api/phases'],
+  });
+
+  const groupPhase = phases.find(p => p.name === "Fase de Grupos");
+
+  const { data: groups = [] } = useQuery<Group[]>({
+    queryKey: [`/api/phases/${groupPhase?.id}/groups`],
+    enabled: !!groupPhase?.id,
+  });
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {groups?.map((group: Group) => (
+        <GroupTable key={group.id} group={group} />
+      ))}
+    </div>
+  );
+}
+
+function GroupTable({ group }: { group: Group }) {
+  const { data: standings = [] } = useQuery({
+    queryKey: [`/api/groups/${group.id}/standings`],
+    queryFn: async () => {
+      const response = await apiRequest('GET', `/api/groups/${group.id}/standings`);
+      return response.json();
+    },
+  });
+
   return (
     <div>
-      <h5 className="font-bold text-sm mb-2" data-testid={`group-${groupName.toLowerCase().replace(' ', '-')}-title`}>{groupName}</h5>
+      <h5 className="font-bold text-sm mb-2" data-testid={`group-${group.name.toLowerCase().replace(' ', '-')}-title`}>{group.name}</h5>
       <table className="w-full text-xs border-collapse">
         <thead>
           <tr>
@@ -264,11 +400,35 @@ function GroupTable({ groupName }: { groupName: string }) {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td colSpan={10} className="border border-gray-300 p-2 text-center text-gray-500">
-              No hay datos de grupos disponibles
-            </td>
-          </tr>
+          {standings.length > 0 ? (
+            standings.map((standing: any, index: number) => (
+              <tr key={standing.id} className={index < 2 ? "bg-green-50" : index < 4 ? "bg-yellow-50" : "even:bg-gray-50"}>
+                <td className="border border-gray-300 p-1 text-center">{standing.position}</td>
+                <td className="border border-gray-300 p-1 text-left pl-2 flex items-center">
+                  <img 
+                    src={standing.team.country.flagUrl || `https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12`}
+                    alt={standing.team.country.code} 
+                    className="w-4 h-3 mr-1"
+                  />
+                  {standing.team.shortName}
+                </td>
+                <td className="border border-gray-300 p-1 text-center font-bold">{standing.points}</td>
+                <td className="border border-gray-300 p-1 text-center">{standing.played}</td>
+                <td className="border border-gray-300 p-1 text-center">{standing.won}</td>
+                <td className="border border-gray-300 p-1 text-center">{standing.drawn}</td>
+                <td className="border border-gray-300 p-1 text-center">{standing.lost}</td>
+                <td className="border border-gray-300 p-1 text-center">{standing.goalsFor}</td>
+                <td className="border border-gray-300 p-1 text-center">{standing.goalsAgainst}</td>
+                <td className="border border-gray-300 p-1 text-center">{standing.goalDifference}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={10} className="border border-gray-300 p-2 text-center text-gray-500">
+                Sin equipos asignados
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
