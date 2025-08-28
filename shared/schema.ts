@@ -30,6 +30,7 @@ export const teams = pgTable("teams", {
   founded: text("founded"),
   stadium: text("stadium"),
   city: text("city"),
+  golesLibcup: integer("goles_libcup").default(0).notNull(),
   createdAt: timestamp("created_at").default(sql`now()`).notNull(),
 });
 
@@ -77,6 +78,7 @@ export const matches = pgTable("matches", {
   isPlayed: boolean("is_played").default(false).notNull(),
   matchDate: timestamp("match_date"),
   round: text("round"), // e.g., "Quarter 1", "Semi 1", "Final"
+  gameweek: integer("gameweek"), // Para fechas de grupos: 1, 2, 3
   createdAt: timestamp("created_at").default(sql`now()`).notNull(),
 });
 

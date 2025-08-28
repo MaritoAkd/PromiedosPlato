@@ -4,7 +4,7 @@ import { apiRequest } from "@/lib/api";
 import type { Phase, MatchWithTeams, Group, GroupStandingWithTeam } from "@shared/schema";
 
 export default function FixtureTab() {
-  const [currentPhase, setCurrentPhase] = useState("quarters");
+  const [currentPhase, setCurrentPhase] = useState("groups");
 
   const { data: phases = [] } = useQuery<Phase[]>({
     queryKey: ['/api/phases'],
@@ -72,199 +72,177 @@ export default function FixtureTab() {
         <h3 className="font-bold mb-3" data-testid="bracket-title">CUADRO</h3>
         
         {/* Phase Navigation */}
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <span 
-              className="bg-gray-100 border border-gray-300 px-2 py-1 cursor-pointer hover:bg-gray-200 text-xs"
-              onClick={prevPhase}
-              data-testid="phase-prev"
-            >
-              ←
-            </span>
-            <span className="mx-4 font-bold text-sm" data-testid="current-phase">
-              {phaseNames[currentPhase]}
-            </span>
-            <span 
-              className="bg-gray-100 border border-gray-300 px-2 py-1 cursor-pointer hover:bg-gray-200 text-xs"
-              onClick={nextPhase}
-              data-testid="phase-next"
-            >
-              →
-            </span>
-          </div>
+        <div className="mb-4 flex items-center justify-center">
           <div className="flex">
             <button 
-              className={`px-2 py-1 text-xs border-none ${currentPhase === 'groups' ? 'bg-blue-800 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              className={`px-3 py-2 text-sm font-bold border-none ${currentPhase === 'groups' ? 'bg-blue-800 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
               onClick={() => showPhase('groups')}
               data-testid="phase-groups"
             >
-              Grupos
+              Fase de Grupos
             </button>
             <button 
-              className={`px-2 py-1 text-xs border-none ml-1 ${currentPhase === 'quarters' ? 'bg-blue-800 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-              onClick={() => showPhase('quarters')}
-              data-testid="phase-quarters"
+              className={`px-3 py-2 text-sm font-bold border-none ml-1 ${currentPhase === 'brackets' ? 'bg-blue-800 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              onClick={() => showPhase('brackets')}
+              data-testid="phase-brackets"
             >
-              Cuartos
-            </button>
-            <button 
-              className="px-2 py-1 text-xs border-none ml-1 bg-gray-400 text-white cursor-not-allowed"
-              disabled
-              data-testid="phase-semis"
-            >
-              Semis
-            </button>
-            <button 
-              className="px-2 py-1 text-xs border-none ml-1 bg-gray-400 text-white cursor-not-allowed"
-              disabled
-              data-testid="phase-final"
-            >
-              Final
+              Cuadro de Eliminatorias
             </button>
           </div>
         </div>
 
-        {/* Bracket Display */}
-        {(currentPhase === "quarters" || currentPhase === "semis" || currentPhase === "final") && (
+        {/* Bracket Display - Nuevo cuadro estilo Promiedos */}
+        {currentPhase === "brackets" && (
           <div className="bracket-container" data-testid="tournament-bracket">
-            {/* Tournament Bracket - Promiedos Style */}
             <div className="bg-white border border-gray-300 p-4">
               <h4 className="font-bold mb-4 text-sm text-center bg-blue-600 text-white p-2">CUADRO DE ELIMINATORIAS</h4>
               
-              <div className="bracket-grid" style={{display: 'grid', gridTemplateColumns: '1fr 80px 1fr 80px 1fr', gap: '10px', alignItems: 'center'}}>
-                
-                {/* CUARTOS - Columna izquierda */}
-                <div className="quarters-left">
-                  <div className="text-xs font-bold mb-2 text-center">CUARTOS DE FINAL</div>
-                  {quartersMatches.slice(0, 2).map((match: MatchWithTeams, idx: number) => (
-                    <div key={match.id} className="match-box border border-gray-400 mb-2 bg-gray-50" data-testid={`quarter-${match.id}`}>
-                      <div className="match-team flex justify-between items-center p-1 text-xs border-b border-gray-300">
-                        <div className="flex items-center">
-                          <img src={match.homeTeam.country.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.homeTeam.country.code} className="w-4 h-3 mr-1" />
-                          <span className={match.isPlayed && match.homeScore! > match.awayScore! ? 'font-bold' : ''}>{match.homeTeam.shortName}</span>
-                        </div>
-                        <span className="font-bold">{match.isPlayed ? match.homeScore : '-'}</span>
-                      </div>
-                      <div className="match-team flex justify-between items-center p-1 text-xs">
-                        <div className="flex items-center">
-                          <img src={match.awayTeam.country.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.awayTeam.country.code} className="w-4 h-3 mr-1" />
-                          <span className={match.isPlayed && match.awayScore! > match.homeScore! ? 'font-bold' : ''}>{match.awayTeam.shortName}</span>
-                        </div>
-                        <span className="font-bold">{match.isPlayed ? match.awayScore : '-'}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* SEMIFINAL - Línea izquierda */}
-                <div className="connector-left flex flex-col items-center">
-                  <div className="border-l-2 border-gray-400 h-8"></div>
-                  <div className="border-b-2 border-gray-400 w-full"></div>
-                  <div className="border-l-2 border-gray-400 h-8"></div>
-                </div>
-
-                {/* SEMIFINALES */}
-                <div className="semis-center">
-                  <div className="text-xs font-bold mb-2 text-center">SEMIFINALES</div>
-                  {semisMatches.slice(0, 1).map((match: MatchWithTeams) => (
-                    <div key={match.id} className="match-box border border-gray-400 mb-8 bg-yellow-50" data-testid={`semi-${match.id}`}>
-                      <div className="match-team flex justify-between items-center p-1 text-xs border-b border-gray-300">
-                        <div className="flex items-center">
-                          <img src={match.homeTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.homeTeam?.country?.code} className="w-4 h-3 mr-1" />
-                          <span className={match.isPlayed && match.homeScore! > match.awayScore! ? 'font-bold' : ''}>{match.homeTeam?.shortName || 'TBD'}</span>
-                        </div>
-                        <span className="font-bold">{match.isPlayed ? match.homeScore : '-'}</span>
-                      </div>
-                      <div className="match-team flex justify-between items-center p-1 text-xs">
-                        <div className="flex items-center">
-                          <img src={match.awayTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.awayTeam?.country?.code} className="w-4 h-3 mr-1" />
-                          <span className={match.isPlayed && match.awayScore! > match.homeScore! ? 'font-bold' : ''}>{match.awayTeam?.shortName || 'TBD'}</span>
-                        </div>
-                        <span className="font-bold">{match.isPlayed ? match.awayScore : '-'}</span>
-                      </div>
-                    </div>
-                  ))}
+              {/* Cuadro completo estilo Promiedos */}
+              <div className="w-full">
+                <div className="grid grid-cols-7 gap-2 items-center text-xs">
                   
-                  {semisMatches.slice(1, 2).map((match: MatchWithTeams) => (
-                    <div key={match.id} className="match-box border border-gray-400 bg-yellow-50" data-testid={`semi-${match.id}`}>
-                      <div className="match-team flex justify-between items-center p-1 text-xs border-b border-gray-300">
-                        <div className="flex items-center">
-                          <img src={match.homeTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.homeTeam?.country?.code} className="w-4 h-3 mr-1" />
-                          <span className={match.isPlayed && match.homeScore! > match.awayScore! ? 'font-bold' : ''}>{match.homeTeam?.shortName || 'TBD'}</span>
-                        </div>
-                        <span className="font-bold">{match.isPlayed ? match.homeScore : '-'}</span>
+                  {/* CUARTOS IZQUIERDA */}
+                  <div className="space-y-4">
+                    <div className="text-center font-bold mb-2">CUARTOS</div>
+                    
+                    {/* Cuarto 1 */}
+                    <div className="border border-gray-400 bg-gray-50 p-1">
+                      <div className="text-xs text-center font-bold mb-1 bg-gray-200 p-1">GRUPO A-1° VS GRUPO D-2°</div>
+                      <div className="flex justify-between border-b border-gray-300 p-1">
+                        <span>TBD (A1)</span>
+                        <span>-</span>
                       </div>
-                      <div className="match-team flex justify-between items-center p-1 text-xs">
-                        <div className="flex items-center">
-                          <img src={match.awayTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.awayTeam?.country?.code} className="w-4 h-3 mr-1" />
-                          <span className={match.isPlayed && match.awayScore! > match.homeScore! ? 'font-bold' : ''}>{match.awayTeam?.shortName || 'TBD'}</span>
-                        </div>
-                        <span className="font-bold">{match.isPlayed ? match.awayScore : '-'}</span>
+                      <div className="flex justify-between p-1">
+                        <span>TBD (D2)</span>
+                        <span>-</span>
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                {/* FINAL - Línea central */}
-                <div className="connector-center flex flex-col items-center">
-                  <div className="border-l-2 border-gray-400 h-8"></div>
-                  <div className="border-b-2 border-gray-400 w-full"></div>
-                  <div className="border-l-2 border-gray-400 h-8"></div>
-                </div>
-
-                {/* FINAL */}
-                <div className="final-right">
-                  <div className="text-xs font-bold mb-2 text-center">FINAL</div>
-                  {finalMatches.map((match: MatchWithTeams) => (
-                    <div key={match.id} className="match-box border border-gray-400 bg-green-50" data-testid={`final-${match.id}`} style={{marginTop: '40px'}}>
-                      <div className="match-team flex justify-between items-center p-2 text-xs border-b border-gray-300">
-                        <div className="flex items-center">
-                          <img src={match.homeTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.homeTeam?.country?.code} className="w-4 h-3 mr-1" />
-                          <span className={match.isPlayed && match.homeScore! > match.awayScore! ? 'font-bold text-green-700' : ''}>{match.homeTeam?.shortName || 'TBD'}</span>
-                        </div>
-                        <span className="font-bold">{match.isPlayed ? match.homeScore : '-'}</span>
+                    
+                    {/* Cuarto 2 */}
+                    <div className="border border-gray-400 bg-gray-50 p-1 mt-8">
+                      <div className="text-xs text-center font-bold mb-1 bg-gray-200 p-1">GRUPO B-1° VS GRUPO C-2°</div>
+                      <div className="flex justify-between border-b border-gray-300 p-1">
+                        <span>TBD (B1)</span>
+                        <span>-</span>
                       </div>
-                      <div className="match-team flex justify-between items-center p-2 text-xs">
-                        <div className="flex items-center">
-                          <img src={match.awayTeam?.country?.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.awayTeam?.country?.code} className="w-4 h-3 mr-1" />
-                          <span className={match.isPlayed && match.awayScore! > match.homeScore! ? 'font-bold text-green-700' : ''}>{match.awayTeam?.shortName || 'TBD'}</span>
-                        </div>
-                        <span className="font-bold">{match.isPlayed ? match.awayScore : '-'}</span>
+                      <div className="flex justify-between p-1">
+                        <span>TBD (C2)</span>
+                        <span>-</span>
                       </div>
-                      {match.matchDate && (
-                        <div className="text-center text-gray-600 p-1 text-xs bg-gray-100">
-                          {new Date(match.matchDate).toLocaleDateString()}
-                        </div>
-                      )}
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Parte derecha - Cuartos restantes */}
-              <div className="mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div></div> {/* Spacer */}
-                  <div className="quarters-right">
-                    <div className="text-xs font-bold mb-2 text-center">CUARTOS DE FINAL</div>
-                    {quartersMatches.slice(2, 4).map((match: MatchWithTeams) => (
-                      <div key={match.id} className="match-box border border-gray-400 mb-2 bg-gray-50" data-testid={`quarter-${match.id}`}>
-                        <div className="match-team flex justify-between items-center p-1 text-xs border-b border-gray-300">
-                          <div className="flex items-center">
-                            <img src={match.homeTeam.country.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.homeTeam.country.code} className="w-4 h-3 mr-1" />
-                            <span className={match.isPlayed && match.homeScore! > match.awayScore! ? 'font-bold' : ''}>{match.homeTeam.shortName}</span>
-                          </div>
-                          <span className="font-bold">{match.isPlayed ? match.homeScore : '-'}</span>
-                        </div>
-                        <div className="match-team flex justify-between items-center p-1 text-xs">
-                          <div className="flex items-center">
-                            <img src={match.awayTeam.country.flagUrl || 'https://via.placeholder.com/16x12'} alt={match.awayTeam.country.code} className="w-4 h-3 mr-1" />
-                            <span className={match.isPlayed && match.awayScore! > match.homeScore! ? 'font-bold' : ''}>{match.awayTeam.shortName}</span>
-                          </div>
-                          <span className="font-bold">{match.isPlayed ? match.awayScore : '-'}</span>
-                        </div>
+                  </div>
+                  
+                  {/* CONECTORES IZQUIERDA */}
+                  <div className="flex flex-col items-center h-full justify-center">
+                    <div className="border-l-2 border-gray-400 h-6"></div>
+                    <div className="border-b-2 border-gray-400 w-full"></div>
+                    <div className="border-l-2 border-gray-400 h-12"></div>
+                    <div className="border-b-2 border-gray-400 w-full"></div>
+                    <div className="border-l-2 border-gray-400 h-6"></div>
+                  </div>
+                  
+                  {/* SEMIFINAL IZQUIERDA */}
+                  <div className="flex flex-col justify-center">
+                    <div className="text-center font-bold mb-2">SEMIS</div>
+                    <div className="border border-gray-400 bg-yellow-50 p-1">
+                      <div className="text-xs text-center font-bold mb-1 bg-yellow-200 p-1">GANADOR C1 VS GANADOR C2</div>
+                      <div className="flex justify-between border-b border-gray-300 p-1">
+                        <span>TBD</span>
+                        <span>-</span>
                       </div>
-                    ))}
+                      <div className="flex justify-between p-1">
+                        <span>TBD</span>
+                        <span>-</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* CONECTOR CENTRAL */}
+                  <div className="flex flex-col items-center h-full justify-center">
+                    <div className="border-l-2 border-gray-400 h-8"></div>
+                    <div className="border-b-2 border-gray-400 w-full"></div>
+                    <div className="border-l-2 border-gray-400 h-8"></div>
+                  </div>
+                  
+                  {/* FINAL */}
+                  <div className="flex flex-col justify-center">
+                    <div className="text-center font-bold mb-2">FINAL</div>
+                    <div className="border border-gray-400 bg-green-50 p-2">
+                      <div className="text-xs text-center font-bold mb-1 bg-green-200 p-1">GANADOR S1 VS GANADOR S2</div>
+                      <div className="flex justify-between border-b border-gray-300 p-1">
+                        <span>TBD</span>
+                        <span>-</span>
+                      </div>
+                      <div className="flex justify-between p-1">
+                        <span>TBD</span>
+                        <span>-</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* CONECTOR DERECHA */}
+                  <div className="flex flex-col items-center h-full justify-center">
+                    <div className="border-r-2 border-gray-400 h-8"></div>
+                    <div className="border-b-2 border-gray-400 w-full"></div>
+                    <div className="border-r-2 border-gray-400 h-8"></div>
+                  </div>
+                  
+                  {/* SEMIFINAL DERECHA */}
+                  <div className="flex flex-col justify-center">
+                    <div className="border border-gray-400 bg-yellow-50 p-1">
+                      <div className="text-xs text-center font-bold mb-1 bg-yellow-200 p-1">GANADOR C3 VS GANADOR C4</div>
+                      <div className="flex justify-between border-b border-gray-300 p-1">
+                        <span>TBD</span>
+                        <span>-</span>
+                      </div>
+                      <div className="flex justify-between p-1">
+                        <span>TBD</span>
+                        <span>-</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* CUARTOS DERECHA */}
+                <div className="grid grid-cols-7 gap-2 items-center text-xs mt-4">
+                  <div></div><div></div><div></div><div></div><div></div>
+                  
+                  {/* CONECTORES DERECHA */}
+                  <div className="flex flex-col items-center h-full justify-center">
+                    <div className="border-r-2 border-gray-400 h-6"></div>
+                    <div className="border-b-2 border-gray-400 w-full"></div>
+                    <div className="border-r-2 border-gray-400 h-12"></div>
+                    <div className="border-b-2 border-gray-400 w-full"></div>
+                    <div className="border-r-2 border-gray-400 h-6"></div>
+                  </div>
+                  
+                  {/* CUARTOS DERECHA */}
+                  <div className="space-y-4">
+                    {/* Cuarto 3 */}
+                    <div className="border border-gray-400 bg-gray-50 p-1">
+                      <div className="text-xs text-center font-bold mb-1 bg-gray-200 p-1">GRUPO A-2° VS GRUPO C-1°</div>
+                      <div className="flex justify-between border-b border-gray-300 p-1">
+                        <span>TBD (A2)</span>
+                        <span>-</span>
+                      </div>
+                      <div className="flex justify-between p-1">
+                        <span>TBD (C1)</span>
+                        <span>-</span>
+                      </div>
+                    </div>
+                    
+                    {/* Cuarto 4 */}
+                    <div className="border border-gray-400 bg-gray-50 p-1 mt-8">
+                      <div className="text-xs text-center font-bold mb-1 bg-gray-200 p-1">GRUPO B-2° VS GRUPO D-1°</div>
+                      <div className="flex justify-between border-b border-gray-300 p-1">
+                        <span>TBD (B2)</span>
+                        <span>-</span>
+                      </div>
+                      <div className="flex justify-between p-1">
+                        <span>TBD (D1)</span>
+                        <span>-</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -272,10 +250,11 @@ export default function FixtureTab() {
           </div>
         )}
 
-        {/* Group Tables */}
-        <div className="mt-6">
-          <h4 className="font-bold mb-3 text-sm" data-testid="groups-title">Fase de Grupos</h4>
-          <DynamicGroupTables />
+        {/* Group Tables - Solo mostrar en fase de grupos */}
+        {currentPhase === "groups" && (
+          <div className="mt-6">
+            <h4 className="font-bold mb-3 text-sm" data-testid="groups-title">Fase de Grupos</h4>
+            <DynamicGroupTables />
           
           {/* Legend */}
           <div className="mt-4 text-xs">
@@ -287,8 +266,9 @@ export default function FixtureTab() {
               <div className="w-4 h-4 bg-yellow-100 border mr-2"></div>
               <span data-testid="legend-sudamericana">Copa Sudamericana</span>
             </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Statistics Sidebar */}

@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertMatchSchema } from "@shared/schema";
-import type { MatchWithTeams, TeamWithCountry, Phase, InsertMatch } from "@shared/schema";
+import type { MatchWithTeams, TeamWithCountry, Phase, InsertMatch, Group } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import { apiRequest } from "@/lib/api";
 
 export default function MatchManagement() {
   const [editingMatch, setEditingMatch] = useState<MatchWithTeams | null>(null);
+  const [currentPhase, setCurrentPhase] = useState<'groups' | 'knockouts'>('groups');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -30,11 +31,35 @@ export default function MatchManagement() {
     queryKey: ['/api/phases'],
   });
 
-  const form = useForm<InsertMatch & { homeScore?: number; awayScore?: number; isPlayed: boolean }>({
+  const { data: groups = [] } = useQuery<Group[]>({
+    queryKey: ['/api/phases/groups'],
+    queryFn: async () => {
+      const groupPhase = phases.find(p => p.name === 'Fase de Grupos');
+      if (!groupPhase) return [];
+      const response = await apiRequest('GET', `/api/phases/${groupPhase.id}/groups`);
+      return response.json();
+    },
+    enabled: phases.length > 0,
+  });
+
+  // Detectar fase actual automáticamente
+  useEffect(() => {
+    const groupPhase = phases.find(p => p.name === 'Fase de Grupos');
+    const allGroupsComplete = groups.length > 0; // Simplificado para el ejemplo
+    
+    if (!allGroupsComplete) {
+      setCurrentPhase('groups');
+    } else {
+      setCurrentPhase('knockouts');
+    }
+  }, [phases, groups]);
+
+  const form = useForm<InsertMatch & { homeScore?: number; awayScore?: number; isPlayed: boolean; gameweek?: number }>({
     resolver: zodResolver(insertMatchSchema.extend({
       homeScore: insertMatchSchema.shape.homeScore.optional(),
       awayScore: insertMatchSchema.shape.awayScore.optional(),
       isPlayed: insertMatchSchema.shape.isPlayed,
+      gameweek: insertMatchSchema.shape.gameweek.optional(),
     })),
     defaultValues: {
       homeTeamId: "",
@@ -46,6 +71,7 @@ export default function MatchManagement() {
       isPlayed: false,
       matchDate: undefined,
       round: "",
+      gameweek: undefined,
     },
   });
 
@@ -102,19 +128,41 @@ export default function MatchManagement() {
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     const matchData: any = {
       ...data,
       homeScore: data.isPlayed ? data.homeScore : null,
       awayScore: data.isPlayed ? data.awayScore : null,
-      groupId: data.groupId || null, // Convertir cadena vacía a null
+      groupId: data.groupId || null,
+      gameweek: currentPhase === 'groups' ? data.gameweek : null,
     };
-    delete matchData.matchDate; // elimina el campo si existe
+    delete matchData.matchDate;
 
     if (editingMatch) {
       updateMatchMutation.mutate({ id: editingMatch.id, data: matchData });
     } else {
       createMatchMutation.mutate(matchData);
+    }
+
+    // Si el partido se marcó como jugado, actualizar goles del equipo
+    if (data.isPlayed && data.homeScore !== undefined && data.awayScore !== undefined) {
+      await updateTeamGoals(data.homeTeamId, data.homeScore);
+      await updateTeamGoals(data.awayTeamId, data.awayScore);
+    }
+  };
+
+  const updateTeamGoals = async (teamId: string, goals: number) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const teamResponse = await apiRequest('GET', `/api/teams/${teamId}`);
+      const team = await teamResponse.json();
+      
+      const newGoals = (team.golesLibcup || 0) + goals;
+      await apiRequest('PUT', `/api/teams/${teamId}`, { golesLibcup: newGoals }, {
+        Authorization: `Bearer ${token}`
+      });
+    } catch (error) {
+      console.error('Error updating team goals:', error);
     }
   };
 
@@ -149,6 +197,20 @@ export default function MatchManagement() {
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Indicador de fase actual */}
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+              <p className="text-sm font-medium">
+                Fase actual detectada: <span className="font-bold">
+                  {currentPhase === 'groups' ? 'Fase de Grupos' : 'Eliminatorias'}
+                </span>
+              </p>
+              {currentPhase === 'groups' && (
+                <p className="text-xs text-blue-600 mt-1">
+                  En fase de grupos, selecciona la fecha (1-3) para organizar los partidos
+                </p>
+              )}
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="homeTeamId">Equipo Local</Label>
@@ -188,9 +250,39 @@ export default function MatchManagement() {
                 )}
               </div>
 
+              {/* Grupo (solo para fase de grupos) */}
+              {currentPhase === 'groups' && (
+                <div>
+                  <Label htmlFor="groupId">Grupo</Label>
+                  <Select onValueChange={(value) => form.setValue("groupId", value)}>
+                    <SelectTrigger data-testid="group-select">
+                      <SelectValue placeholder="Seleccionar grupo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {groups?.map((group: any) => (
+                        <SelectItem key={group.id} value={group.id}>
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {form.formState.errors.groupId && (
+                    <p className="text-sm text-red-600">{form.formState.errors.groupId.message}</p>
+                  )}
+                </div>
+              )}
+              
               <div>
                 <Label htmlFor="phaseId">Fase</Label>
-                <Select onValueChange={(value) => form.setValue("phaseId", value)}>
+                <Select onValueChange={(value) => {
+                  form.setValue("phaseId", value);
+                  const selectedPhase = phases.find(p => p.id === value);
+                  if (selectedPhase?.name === 'Fase de Grupos') {
+                    setCurrentPhase('groups');
+                  } else {
+                    setCurrentPhase('knockouts');
+                  }
+                }}>
                   <SelectTrigger data-testid="phase-select">
                     <SelectValue placeholder="Seleccionar fase" />
                   </SelectTrigger>
@@ -207,15 +299,35 @@ export default function MatchManagement() {
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="round">Ronda</Label>
-                <Input
-                  id="round"
-                  {...form.register("round")}
-                  placeholder="ej. Cuarto 1"
-                  data-testid="match-round-input"
-                />
-              </div>
+              {/* Ronda o Fecha según la fase */}
+              {currentPhase === 'groups' ? (
+                <div>
+                  <Label htmlFor="gameweek">Fecha</Label>
+                  <Select onValueChange={(value) => form.setValue("gameweek", parseInt(value))}>
+                    <SelectTrigger data-testid="gameweek-select">
+                      <SelectValue placeholder="Seleccionar fecha" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Fecha 1</SelectItem>
+                      <SelectItem value="2">Fecha 2</SelectItem>
+                      <SelectItem value="3">Fecha 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {form.formState.errors.gameweek && (
+                    <p className="text-sm text-red-600">{form.formState.errors.gameweek.message}</p>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <Label htmlFor="round">Ronda</Label>
+                  <Input
+                    id="round"
+                    {...form.register("round")}
+                    placeholder="ej. Cuarto 1"
+                    data-testid="match-round-input"
+                  />
+                </div>
+              )}
 
               <div className="flex items-center space-x-2">
                 <Checkbox
