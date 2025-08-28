@@ -105,7 +105,6 @@ export default function MatchManagement() {
   const onSubmit = (data: any) => {
     const matchData = {
       ...data,
-      matchDate: data.matchDate ? new Date(data.matchDate) : null, // convierte string a Date
       homeScore: data.isPlayed ? data.homeScore : null,
       awayScore: data.isPlayed ? data.awayScore : null,
     };
@@ -127,7 +126,6 @@ export default function MatchManagement() {
       homeScore: match.homeScore || undefined,
       awayScore: match.awayScore || undefined,
       isPlayed: match.isPlayed,
-      matchDate: match.matchDate ? new Date(match.matchDate) : undefined,
       round: match.round || "",
     });
   };
@@ -217,16 +215,6 @@ export default function MatchManagement() {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="matchDate">Fecha del Partido</Label>
-                <Input
-                  id="matchDate"
-                  type="date"
-                  {...form.register("matchDate")}
-                  data-testid="match-date-input"
-                />
-              </div>
-
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="isPlayed"
@@ -299,7 +287,6 @@ export default function MatchManagement() {
                   <th className="bg-gray-100 border border-gray-300 p-2 text-left">Equipos</th>
                   <th className="bg-gray-100 border border-gray-300 p-2 text-left">Resultado</th>
                   <th className="bg-gray-100 border border-gray-300 p-2 text-left">Fase</th>
-                  <th className="bg-gray-100 border border-gray-300 p-2 text-left">Fecha</th>
                   <th className="bg-gray-100 border border-gray-300 p-2 text-left">Acciones</th>
                 </tr>
               </thead>
@@ -313,9 +300,6 @@ export default function MatchManagement() {
                       {match.isPlayed ? `${match.homeScore} - ${match.awayScore}` : "Por jugar"}
                     </td>
                     <td className="border border-gray-300 p-2">{match.phase.name}</td>
-                    <td className="border border-gray-300 p-2">
-                      {match.matchDate ? new Date(match.matchDate).toLocaleDateString() : "-"}
-                    </td>
                     <td className="border border-gray-300 p-2 space-x-2">
                       <Button
                         size="sm"
