@@ -2,11 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import type { ChampionWithTeams } from "@shared/schema";
 
 export default function ChampionsTab() {
-  const { data: champions, isLoading } = useQuery({
+  const { data: champions = [], isLoading } = useQuery<ChampionWithTeams[]>({
     queryKey: ['/api/champions'],
   });
 
-  const { data: topScorers } = useQuery({
+  const { data: topScorers = [] } = useQuery<any[]>({
     queryKey: ['/api/stats/top-scorers'],
   });
 

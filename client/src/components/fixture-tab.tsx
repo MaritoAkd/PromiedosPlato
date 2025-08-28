@@ -6,19 +6,19 @@ import type { Phase, MatchWithTeams, Group, GroupStandingWithTeam } from "@share
 export default function FixtureTab() {
   const [currentPhase, setCurrentPhase] = useState("quarters");
 
-  const { data: phases } = useQuery({
+  const { data: phases = [] } = useQuery<Phase[]>({
     queryKey: ['/api/phases'],
   });
 
-  const { data: matches } = useQuery({
+  const { data: matches = [] } = useQuery<MatchWithTeams[]>({
     queryKey: ['/api/matches'],
   });
 
-  const { data: topScorers } = useQuery({
+  const { data: topScorers = [] } = useQuery<any[]>({
     queryKey: ['/api/stats/top-scorers'],
   });
 
-  const { data: topDefenders } = useQuery({
+  const { data: topDefenders = [] } = useQuery<any[]>({
     queryKey: ['/api/stats/top-defenders'],
   });
 

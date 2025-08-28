@@ -5,11 +5,11 @@ import type { TeamWithCountry, TeamStats } from "@shared/schema";
 export default function TeamsTab() {
   const [selectedTeam, setSelectedTeam] = useState<TeamWithCountry | null>(null);
 
-  const { data: teams, isLoading } = useQuery({
+  const { data: teams = [], isLoading } = useQuery<TeamWithCountry[]>({
     queryKey: ['/api/teams'],
   });
 
-  const { data: teamStats } = useQuery({
+  const { data: teamStats } = useQuery<TeamStats>({
     queryKey: ['/api/teams', selectedTeam?.id, 'stats'],
     enabled: !!selectedTeam,
   });
