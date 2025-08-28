@@ -11,7 +11,7 @@ import {
   type TeamStats, type InsertTeamStats
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, desc, asc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Users

@@ -4,8 +4,6 @@ import { apiRequest } from "@/lib/api";
 import type { Phase, MatchWithTeams, Group, GroupStandingWithTeam } from "@shared/schema";
 
 export default function FixtureTab() {
-  const [currentPhase, setCurrentPhase] = useState("groups");
-
   const { data: phases = [] } = useQuery<Phase[]>({
     queryKey: ['/api/phases'],
   });
@@ -22,48 +20,7 @@ export default function FixtureTab() {
     queryKey: ['/api/stats/top-defenders'],
   });
 
-  const phaseNames: Record<string, string> = {
-    groups: "Fase de Grupos",
-    quarters: "Cuartos de Final",
-    semis: "Semifinales",
-    final: "Final"
-  };
-
-  const quartersMatches = matches?.filter((match: MatchWithTeams) => 
-    match.phase.name === "Cuartos de Final"
-  ) || [];
-
-  const semisMatches = matches?.filter((match: MatchWithTeams) => 
-    match.phase.name === "Semifinales"
-  ) || [];
-
-  const finalMatches = matches?.filter((match: MatchWithTeams) => 
-    match.phase.name === "Final"
-  ) || [];
-
-  const nextPhase = () => {
-    const phases = ["groups", "quarters", "semis", "final"];
-    const currentIndex = phases.indexOf(currentPhase);
-    if (currentIndex < phases.length - 1) {
-      const nextPhase = phases[currentIndex + 1];
-      // Only allow if phase is unlocked (has played matches)
-      if (nextPhase === "quarters" || nextPhase === "groups") {
-        setCurrentPhase(nextPhase);
-      }
-    }
-  };
-
-  const prevPhase = () => {
-    const phases = ["groups", "quarters", "semis", "final"];
-    const currentIndex = phases.indexOf(currentPhase);
-    if (currentIndex > 0) {
-      setCurrentPhase(phases[currentIndex - 1]);
-    }
-  };
-
-  const showPhase = (phase: string) => {
-    setCurrentPhase(phase);
-  };
+  // Las fases se muestran todas juntas ahora
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -71,190 +28,155 @@ export default function FixtureTab() {
       <div className="lg:col-span-2">
         <h3 className="font-bold mb-3" data-testid="bracket-title">CUADRO</h3>
         
-        {/* Phase Navigation */}
-        <div className="mb-4 flex items-center justify-center">
-          <div className="flex">
-            <button 
-              className={`px-3 py-2 text-sm font-bold border-none ${currentPhase === 'groups' ? 'bg-blue-800 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-              onClick={() => showPhase('groups')}
-              data-testid="phase-groups"
-            >
-              Fase de Grupos
-            </button>
-            <button 
-              className={`px-3 py-2 text-sm font-bold border-none ml-1 ${currentPhase === 'brackets' ? 'bg-blue-800 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-              onClick={() => showPhase('brackets')}
-              data-testid="phase-brackets"
-            >
-              Cuadro de Eliminatorias
-            </button>
-          </div>
-        </div>
 
-        {/* Bracket Display - Nuevo cuadro estilo Promiedos */}
-        {currentPhase === "brackets" && (
-          <div className="bracket-container" data-testid="tournament-bracket">
-            <div className="bg-white border border-gray-300 p-4">
-              <h4 className="font-bold mb-4 text-sm text-center bg-blue-600 text-white p-2">CUADRO DE ELIMINATORIAS</h4>
-              
-              {/* Cuadro completo estilo Promiedos */}
-              <div className="w-full">
-                <div className="grid grid-cols-7 gap-2 items-center text-xs">
+        {/* Cuadro Completo estilo Promiedos con scroll horizontal */}
+        <div className="bg-white border border-gray-300 mb-6">
+          <h4 className="font-bold text-sm text-center bg-blue-600 text-white p-2">CUADRO DE ELIMINATORIAS</h4>
+          
+          {/* Container con scroll horizontal */}
+          <div className="overflow-x-auto">
+            <div className="min-w-[800px] p-4">
+              <div className="flex items-center justify-between text-xs">
+                
+                {/* CUARTOS IZQUIERDA */}
+                <div className="flex flex-col space-y-3">
+                  <div className="text-center font-bold text-gray-600">CUARTOS</div>
                   
-                  {/* CUARTOS IZQUIERDA */}
-                  <div className="space-y-4">
-                    <div className="text-center font-bold mb-2">CUARTOS</div>
-                    
-                    {/* Cuarto 1 */}
-                    <div className="border border-gray-400 bg-gray-50 p-1">
-                      <div className="text-xs text-center font-bold mb-1 bg-gray-200 p-1">GRUPO A-1° VS GRUPO D-2°</div>
-                      <div className="flex justify-between border-b border-gray-300 p-1">
-                        <span>TBD (A1)</span>
-                        <span>-</span>
-                      </div>
-                      <div className="flex justify-between p-1">
-                        <span>TBD (D2)</span>
-                        <span>-</span>
-                      </div>
+                  <div className="border border-gray-400 bg-gray-50 w-32">
+                    <div className="text-xs text-center font-bold bg-gray-200 p-1">A1 VS D2</div>
+                    <div className="flex justify-between border-b p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
                     </div>
-                    
-                    {/* Cuarto 2 */}
-                    <div className="border border-gray-400 bg-gray-50 p-1 mt-8">
-                      <div className="text-xs text-center font-bold mb-1 bg-gray-200 p-1">GRUPO B-1° VS GRUPO C-2°</div>
-                      <div className="flex justify-between border-b border-gray-300 p-1">
-                        <span>TBD (B1)</span>
-                        <span>-</span>
-                      </div>
-                      <div className="flex justify-between p-1">
-                        <span>TBD (C2)</span>
-                        <span>-</span>
-                      </div>
+                    <div className="flex justify-between p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
                     </div>
                   </div>
                   
-                  {/* CONECTORES IZQUIERDA */}
-                  <div className="flex flex-col items-center h-full justify-center">
-                    <div className="border-l-2 border-gray-400 h-6"></div>
-                    <div className="border-b-2 border-gray-400 w-full"></div>
-                    <div className="border-l-2 border-gray-400 h-12"></div>
-                    <div className="border-b-2 border-gray-400 w-full"></div>
-                    <div className="border-l-2 border-gray-400 h-6"></div>
-                  </div>
-                  
-                  {/* SEMIFINAL IZQUIERDA */}
-                  <div className="flex flex-col justify-center">
-                    <div className="text-center font-bold mb-2">SEMIS</div>
-                    <div className="border border-gray-400 bg-yellow-50 p-1">
-                      <div className="text-xs text-center font-bold mb-1 bg-yellow-200 p-1">GANADOR C1 VS GANADOR C2</div>
-                      <div className="flex justify-between border-b border-gray-300 p-1">
-                        <span>TBD</span>
-                        <span>-</span>
-                      </div>
-                      <div className="flex justify-between p-1">
-                        <span>TBD</span>
-                        <span>-</span>
-                      </div>
+                  <div className="border border-gray-400 bg-gray-50 w-32">
+                    <div className="text-xs text-center font-bold bg-gray-200 p-1">B1 VS C2</div>
+                    <div className="flex justify-between border-b p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
                     </div>
-                  </div>
-                  
-                  {/* CONECTOR CENTRAL */}
-                  <div className="flex flex-col items-center h-full justify-center">
-                    <div className="border-l-2 border-gray-400 h-8"></div>
-                    <div className="border-b-2 border-gray-400 w-full"></div>
-                    <div className="border-l-2 border-gray-400 h-8"></div>
-                  </div>
-                  
-                  {/* FINAL */}
-                  <div className="flex flex-col justify-center">
-                    <div className="text-center font-bold mb-2">FINAL</div>
-                    <div className="border border-gray-400 bg-green-50 p-2">
-                      <div className="text-xs text-center font-bold mb-1 bg-green-200 p-1">GANADOR S1 VS GANADOR S2</div>
-                      <div className="flex justify-between border-b border-gray-300 p-1">
-                        <span>TBD</span>
-                        <span>-</span>
-                      </div>
-                      <div className="flex justify-between p-1">
-                        <span>TBD</span>
-                        <span>-</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* CONECTOR DERECHA */}
-                  <div className="flex flex-col items-center h-full justify-center">
-                    <div className="border-r-2 border-gray-400 h-8"></div>
-                    <div className="border-b-2 border-gray-400 w-full"></div>
-                    <div className="border-r-2 border-gray-400 h-8"></div>
-                  </div>
-                  
-                  {/* SEMIFINAL DERECHA */}
-                  <div className="flex flex-col justify-center">
-                    <div className="border border-gray-400 bg-yellow-50 p-1">
-                      <div className="text-xs text-center font-bold mb-1 bg-yellow-200 p-1">GANADOR C3 VS GANADOR C4</div>
-                      <div className="flex justify-between border-b border-gray-300 p-1">
-                        <span>TBD</span>
-                        <span>-</span>
-                      </div>
-                      <div className="flex justify-between p-1">
-                        <span>TBD</span>
-                        <span>-</span>
-                      </div>
+                    <div className="flex justify-between p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
                     </div>
                   </div>
                 </div>
                 
-                {/* CUARTOS DERECHA */}
-                <div className="grid grid-cols-7 gap-2 items-center text-xs mt-4">
-                  <div></div><div></div><div></div><div></div><div></div>
+                {/* LINEAS CONECTORAS */}
+                <div className="flex flex-col items-center mx-4">
+                  <div className="border-l-2 border-gray-400 h-4"></div>
+                  <div className="border-b-2 border-gray-400 w-8"></div>
+                  <div className="border-l-2 border-gray-400 h-8"></div>
+                  <div className="border-b-2 border-gray-400 w-8"></div>
+                  <div className="border-l-2 border-gray-400 h-4"></div>
+                </div>
+                
+                {/* SEMIFINALES */}
+                <div className="flex flex-col space-y-3">
+                  <div className="text-center font-bold text-gray-600">SEMIS</div>
                   
-                  {/* CONECTORES DERECHA */}
-                  <div className="flex flex-col items-center h-full justify-center">
-                    <div className="border-r-2 border-gray-400 h-6"></div>
-                    <div className="border-b-2 border-gray-400 w-full"></div>
-                    <div className="border-r-2 border-gray-400 h-12"></div>
-                    <div className="border-b-2 border-gray-400 w-full"></div>
-                    <div className="border-r-2 border-gray-400 h-6"></div>
+                  <div className="border border-gray-400 bg-yellow-50 w-32">
+                    <div className="text-xs text-center font-bold bg-yellow-200 p-1">G. C1 VS G. C2</div>
+                    <div className="flex justify-between border-b p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
+                    </div>
+                    <div className="flex justify-between p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
+                    </div>
                   </div>
                   
-                  {/* CUARTOS DERECHA */}
-                  <div className="space-y-4">
-                    {/* Cuarto 3 */}
-                    <div className="border border-gray-400 bg-gray-50 p-1">
-                      <div className="text-xs text-center font-bold mb-1 bg-gray-200 p-1">GRUPO A-2° VS GRUPO C-1°</div>
-                      <div className="flex justify-between border-b border-gray-300 p-1">
-                        <span>TBD (A2)</span>
-                        <span>-</span>
-                      </div>
-                      <div className="flex justify-between p-1">
-                        <span>TBD (C1)</span>
-                        <span>-</span>
-                      </div>
+                  <div className="border border-gray-400 bg-yellow-50 w-32">
+                    <div className="text-xs text-center font-bold bg-yellow-200 p-1">G. C3 VS G. C4</div>
+                    <div className="flex justify-between border-b p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
                     </div>
-                    
-                    {/* Cuarto 4 */}
-                    <div className="border border-gray-400 bg-gray-50 p-1 mt-8">
-                      <div className="text-xs text-center font-bold mb-1 bg-gray-200 p-1">GRUPO B-2° VS GRUPO D-1°</div>
-                      <div className="flex justify-between border-b border-gray-300 p-1">
-                        <span>TBD (B2)</span>
-                        <span>-</span>
-                      </div>
-                      <div className="flex justify-between p-1">
-                        <span>TBD (D1)</span>
-                        <span>-</span>
-                      </div>
+                    <div className="flex justify-between p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* LINEA CENTRAL */}
+                <div className="flex flex-col items-center mx-4">
+                  <div className="border-l-2 border-gray-400 h-4"></div>
+                  <div className="border-b-2 border-gray-400 w-8"></div>
+                  <div className="border-l-2 border-gray-400 h-8"></div>
+                  <div className="border-b-2 border-gray-400 w-8"></div>
+                  <div className="border-l-2 border-gray-400 h-4"></div>
+                </div>
+                
+                {/* FINAL */}
+                <div className="flex flex-col justify-center">
+                  <div className="text-center font-bold text-gray-600 mb-3">FINAL</div>
+                  
+                  <div className="border border-gray-400 bg-green-50 w-32">
+                    <div className="text-xs text-center font-bold bg-green-200 p-1">G. S1 VS G. S2</div>
+                    <div className="flex justify-between border-b p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
+                    </div>
+                    <div className="flex justify-between p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* LINEA DERECHA */}
+                <div className="flex flex-col items-center mx-4">
+                  <div className="border-r-2 border-gray-400 h-4"></div>
+                  <div className="border-b-2 border-gray-400 w-8"></div>
+                  <div className="border-r-2 border-gray-400 h-8"></div>
+                  <div className="border-b-2 border-gray-400 w-8"></div>
+                  <div className="border-r-2 border-gray-400 h-4"></div>
+                </div>
+                
+                {/* CUARTOS DERECHA */}
+                <div className="flex flex-col space-y-3">
+                  <div className="text-center font-bold text-gray-600">CUARTOS</div>
+                  
+                  <div className="border border-gray-400 bg-gray-50 w-32">
+                    <div className="text-xs text-center font-bold bg-gray-200 p-1">A2 VS C1</div>
+                    <div className="flex justify-between border-b p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
+                    </div>
+                    <div className="flex justify-between p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
+                    </div>
+                  </div>
+                  
+                  <div className="border border-gray-400 bg-gray-50 w-32">
+                    <div className="text-xs text-center font-bold bg-gray-200 p-1">B2 VS D1</div>
+                    <div className="flex justify-between border-b p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
+                    </div>
+                    <div className="flex justify-between p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Group Tables - Solo mostrar en fase de grupos */}
-        {currentPhase === "groups" && (
-          <div className="mt-6">
-            <h4 className="font-bold mb-3 text-sm" data-testid="groups-title">Fase de Grupos</h4>
-            <DynamicGroupTables />
+        {/* Group Tables - Siempre visible */}
+        <div className="mt-6">
+          <h4 className="font-bold mb-3 text-sm" data-testid="groups-title">Fase de Grupos</h4>
+          <DynamicGroupTables />
           
           {/* Legend */}
           <div className="mt-4 text-xs">
@@ -266,9 +188,8 @@ export default function FixtureTab() {
               <div className="w-4 h-4 bg-yellow-100 border mr-2"></div>
               <span data-testid="legend-sudamericana">Copa Sudamericana</span>
             </div>
-            </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Statistics Sidebar */}
