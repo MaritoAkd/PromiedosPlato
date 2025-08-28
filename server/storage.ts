@@ -43,6 +43,7 @@ export interface IStorage {
   getGroupStandings(groupId: string): Promise<GroupStandingWithTeam[]>;
   updateGroupStanding(id: string, standing: Partial<InsertGroupStanding>): Promise<GroupStanding>;
   createGroupStanding(standing: InsertGroupStanding): Promise<GroupStanding>;
+  deleteGroupStanding(id: string): Promise<void>;
 
   // Matches
   getAllMatches(): Promise<MatchWithTeams[]>;
@@ -192,6 +193,10 @@ export class DatabaseStorage implements IStorage {
   async createGroupStanding(standing: InsertGroupStanding): Promise<GroupStanding> {
     const [newStanding] = await db.insert(groupStandings).values(standing).returning();
     return newStanding;
+  }
+
+  async deleteGroupStanding(id: string): Promise<void> {
+    await db.delete(groupStandings).where(eq(groupStandings.id, id));
   }
 
   // Matches
@@ -387,36 +392,76 @@ export class DatabaseStorage implements IStorage {
     return newStats;
   }
 
-  async getTopGoalScorers(): Promise<(TeamStats & { team: TeamWithCountry })[]> {
-    return await db.select()
-      .from(teamStats)
-      .leftJoin(teams, eq(teamStats.teamId, teams.id))
-      .leftJoin(countries, eq(teams.countryId, countries.id))
-      .orderBy(desc(teamStats.allTimeGoals))
-      .limit(10)
-      .then(rows => rows.map(row => ({
-        ...row.team_stats,
-        team: {
-          ...row.teams!,
-          country: row.countries!
-        }
-      })));
+  async getTopGoalScorers(): Promise<any[]> {
+    const results = await db.select({
+      team: teams,
+      country: countries,
+      totalGoals: sql<number>`
+        COALESCE(
+          (SELECT SUM(CASE WHEN home_team_id = ${teams.id} THEN home_score ELSE 0 END) +
+                  SUM(CASE WHEN away_team_id = ${teams.id} THEN away_score ELSE 0 END)
+           FROM matches
+           WHERE (home_team_id = ${teams.id} OR away_team_id = ${teams.id}) 
+             AND is_played = true), 0
+        )
+      `
+    })
+    .from(teams)
+    .leftJoin(countries, eq(teams.countryId, countries.id))
+    .orderBy(sql`
+      COALESCE(
+        (SELECT SUM(CASE WHEN home_team_id = ${teams.id} THEN home_score ELSE 0 END) +
+                SUM(CASE WHEN away_team_id = ${teams.id} THEN away_score ELSE 0 END)
+         FROM matches
+         WHERE (home_team_id = ${teams.id} OR away_team_id = ${teams.id}) 
+           AND is_played = true), 0
+      ) DESC
+    `)
+    .limit(8);
+    
+    return results.map(row => ({
+      allTimeGoals: row.totalGoals,
+      team: {
+        ...row.team,
+        country: row.country
+      }
+    }));
   }
 
-  async getTopDefenders(): Promise<(TeamStats & { team: TeamWithCountry })[]> {
-    return await db.select()
-      .from(teamStats)
-      .leftJoin(teams, eq(teamStats.teamId, teams.id))
-      .leftJoin(countries, eq(teams.countryId, countries.id))
-      .orderBy(desc(teamStats.allTimeCleanSheets))
-      .limit(10)
-      .then(rows => rows.map(row => ({
-        ...row.team_stats,
-        team: {
-          ...row.teams!,
-          country: row.countries!
-        }
-      })));
+  async getTopDefenders(): Promise<any[]> {
+    const results = await db.select({
+      team: teams,
+      country: countries,
+      cleanSheets: sql<number>`
+        COALESCE(
+          (SELECT COUNT(*)
+           FROM matches
+           WHERE ((home_team_id = ${teams.id} AND COALESCE(away_score, 0) = 0) OR 
+                  (away_team_id = ${teams.id} AND COALESCE(home_score, 0) = 0))
+             AND is_played = true), 0
+        )
+      `
+    })
+    .from(teams)
+    .leftJoin(countries, eq(teams.countryId, countries.id))
+    .orderBy(sql`
+      COALESCE(
+        (SELECT COUNT(*)
+         FROM matches
+         WHERE ((home_team_id = ${teams.id} AND COALESCE(away_score, 0) = 0) OR 
+                (away_team_id = ${teams.id} AND COALESCE(home_score, 0) = 0))
+           AND is_played = true), 0
+      ) DESC
+    `)
+    .limit(8);
+    
+    return results.map(row => ({
+      allTimeCleanSheets: row.cleanSheets,
+      team: {
+        ...row.team,
+        country: row.country
+      }
+    }));
   }
 }
 
