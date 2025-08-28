@@ -1,6 +1,6 @@
 import { useState } from "react";
-import TeamManagement from "./team-management";
-import MatchManagement from "./match-management";
+import TeamManagement from "./team-management.tsx";
+import MatchManagement from "./match-management.tsx";
 
 interface AdminDashboardProps {
   onLogout: () => void;

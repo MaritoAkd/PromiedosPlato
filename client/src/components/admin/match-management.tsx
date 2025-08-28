@@ -18,15 +18,15 @@ export default function MatchManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: matches } = useQuery({
+  const { data: matches = [] } = useQuery<MatchWithTeams[]>({
     queryKey: ['/api/matches'],
   });
 
-  const { data: teams } = useQuery({
+  const { data: teams = [] } = useQuery<TeamWithCountry[]>({
     queryKey: ['/api/teams'],
   });
 
-  const { data: phases } = useQuery({
+  const { data: phases = [] } = useQuery<Phase[]>({
     queryKey: ['/api/phases'],
   });
 
@@ -127,7 +127,7 @@ export default function MatchManagement() {
       homeScore: match.homeScore || undefined,
       awayScore: match.awayScore || undefined,
       isPlayed: match.isPlayed,
-      matchDate: match.matchDate ? new Date(match.matchDate).toISOString().slice(0, 16) : undefined,
+      matchDate: match.matchDate ? match.matchDate.toString().slice(0, 16) : undefined,
       round: match.round || "",
     });
   };

@@ -17,11 +17,11 @@ export default function TeamManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: teams } = useQuery({
+  const { data: teams = [] } = useQuery<TeamWithCountry[]>({
     queryKey: ['/api/teams'],
   });
 
-  const { data: countries } = useQuery({
+  const { data: countries = [] } = useQuery<Country[]>({
     queryKey: ['/api/countries'],
   });
 

@@ -10,9 +10,9 @@ export default function Admin() {
     queryKey: ['admin', 'user'],
     queryFn: () => {
       if (!token) return null;
-      // Decode JWT token to get user info
+      // Decode simple JSON token (not JWT)
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
+        const payload = JSON.parse(token);
         return payload;
       } catch {
         return null;
