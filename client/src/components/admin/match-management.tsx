@@ -105,7 +105,7 @@ export default function MatchManagement() {
   const onSubmit = (data: any) => {
     const matchData = {
       ...data,
-      matchDate: data.matchDate || null, // usar directamente el valor del input
+      matchDate: data.matchDate ? new Date(data.matchDate) : null, // convierte string a Date
       homeScore: data.isPlayed ? data.homeScore : null,
       awayScore: data.isPlayed ? data.awayScore : null,
     };
