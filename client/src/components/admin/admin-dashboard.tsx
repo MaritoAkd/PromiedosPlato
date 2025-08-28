@@ -14,7 +14,10 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900" data-testid="admin-title">
+            <h1
+              className="text-2xl font-bold text-gray-900"
+              data-testid="admin-title"
+            >
               Panel de Administración - Copa Libertadores de Plato
             </h1>
             <button
@@ -25,7 +28,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
               Cerrar Sesión
             </button>
           </div>
-          
+
           <div className="flex space-x-6 mt-4">
             <button
               className={`px-4 py-2 text-sm font-medium ${
