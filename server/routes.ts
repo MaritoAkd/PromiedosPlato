@@ -9,7 +9,10 @@ import {
 
 // Mock implementations for missing dependencies
 const bcrypt = {
-  compare: async (password: string, hash: string) => password === hash,
+  compare: async (password: string, hash: string) => {
+    // Simple comparison for admin credentials
+    return password === hash;
+  },
   hash: async (password: string, rounds: number) => password
 };
 
@@ -38,18 +41,26 @@ const verifyAdmin = (req: any, res: any, next: any) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  console.log('Setting up routes...');
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password } = req.body;
+      console.log('Login attempt:', { username, password });
+      
       const user = await storage.getUserByUsername(username);
+      console.log('User found:', user);
       
       if (!user) {
+        console.log('No user found');
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
       const validPassword = await bcrypt.compare(password, user.password);
+      console.log('Password comparison:', { provided: password, stored: user.password, valid: validPassword });
+      
       if (!validPassword) {
+        console.log('Invalid password');
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
@@ -61,6 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ token, user: { id: user.id, username: user.username, isAdmin: user.isAdmin } });
     } catch (error) {
+      console.error('Login error:', error);
       res.status(500).json({ message: "Login failed" });
     }
   });

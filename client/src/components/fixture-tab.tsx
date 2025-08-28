@@ -33,47 +33,49 @@ export default function FixtureTab() {
         <div className="bg-white border border-gray-300 mb-6">
           <h4 className="font-bold text-sm text-center bg-blue-600 text-white p-2">CUADRO DE ELIMINATORIAS</h4>
           
-          {/* Container con scroll horizontal */}
-          <div className="overflow-x-auto">
-            <div className="min-w-[800px] p-4">
-              <div className="flex items-center justify-between text-xs">
+          {/* Container con scroll horizontal más amplio */}
+          <div className="overflow-x-auto pb-4">
+            <div className="min-w-[1200px] p-6">
+              
+              {/* Layout mejorado en grid */}
+              <div className="grid grid-cols-9 gap-6 items-center text-xs h-64">
                 
                 {/* CUARTOS IZQUIERDA */}
-                <div className="flex flex-col space-y-3">
-                  <div className="text-center font-bold text-gray-600">CUARTOS</div>
+                <div className="col-span-1 flex flex-col justify-center space-y-8">
+                  <div className="text-center font-bold text-blue-600 mb-2">CUARTOS</div>
                   
-                  <div className="border border-gray-400 bg-gray-50 w-32">
-                    <div className="text-xs text-center font-bold bg-gray-200 p-1">A1 VS D2</div>
-                    <div className="flex justify-between border-b p-1">
-                      <span className="truncate">TBD</span>
-                      <span>-</span>
+                  <div className="border-2 border-gray-400 bg-gray-50 w-36 shadow-sm">
+                    <div className="text-xs text-center font-bold bg-blue-200 p-1">GRUPO A-1° VS GRUPO D-2°</div>
+                    <div className="flex justify-between border-b border-gray-300 p-2">
+                      <span className="truncate font-medium">TBD (A1)</span>
+                      <span className="font-bold">-</span>
                     </div>
-                    <div className="flex justify-between p-1">
-                      <span className="truncate">TBD</span>
-                      <span>-</span>
+                    <div className="flex justify-between p-2">
+                      <span className="truncate font-medium">TBD (D2)</span>
+                      <span className="font-bold">-</span>
                     </div>
                   </div>
                   
-                  <div className="border border-gray-400 bg-gray-50 w-32">
-                    <div className="text-xs text-center font-bold bg-gray-200 p-1">B1 VS C2</div>
-                    <div className="flex justify-between border-b p-1">
-                      <span className="truncate">TBD</span>
-                      <span>-</span>
+                  <div className="border-2 border-gray-400 bg-gray-50 w-36 shadow-sm">
+                    <div className="text-xs text-center font-bold bg-blue-200 p-1">GRUPO B-1° VS GRUPO C-2°</div>
+                    <div className="flex justify-between border-b border-gray-300 p-2">
+                      <span className="truncate font-medium">TBD (B1)</span>
+                      <span className="font-bold">-</span>
                     </div>
-                    <div className="flex justify-between p-1">
-                      <span className="truncate">TBD</span>
-                      <span>-</span>
+                    <div className="flex justify-between p-2">
+                      <span className="truncate font-medium">TBD (C2)</span>
+                      <span className="font-bold">-</span>
                     </div>
                   </div>
                 </div>
                 
-                {/* LINEAS CONECTORAS */}
-                <div className="flex flex-col items-center mx-4">
-                  <div className="border-l-2 border-gray-400 h-4"></div>
-                  <div className="border-b-2 border-gray-400 w-8"></div>
-                  <div className="border-l-2 border-gray-400 h-8"></div>
-                  <div className="border-b-2 border-gray-400 w-8"></div>
-                  <div className="border-l-2 border-gray-400 h-4"></div>
+                {/* LÍNEAS CONECTORAS IZQUIERDA */}
+                <div className="col-span-1 flex flex-col items-center justify-center h-full">
+                  <div className="border-l-4 border-blue-400 h-8"></div>
+                  <div className="border-b-4 border-blue-400 w-12"></div>
+                  <div className="border-l-4 border-blue-400 h-16"></div>
+                  <div className="border-b-4 border-blue-400 w-12"></div>
+                  <div className="border-l-4 border-blue-400 h-8"></div>
                 </div>
                 
                 {/* SEMIFINAL IZQUIERDA */}
