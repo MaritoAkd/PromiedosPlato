@@ -216,6 +216,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/standings/:id", verifyAdmin, async (req, res) => {
+    try {
+      await storage.deleteGroupStanding(req.params.id);
+      res.json({ message: "Standing deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete standing" });
+    }
+  });
+
   // Matches routes
   app.get("/api/matches", async (req, res) => {
     try {
