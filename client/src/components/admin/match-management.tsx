@@ -105,7 +105,7 @@ export default function MatchManagement() {
   const onSubmit = (data: any) => {
     const matchData = {
       ...data,
-      matchDate: data.matchDate ? new Date(data.matchDate).toISOString() : null,
+      matchDate: data.matchDate || null, // usar directamente el valor del input
       homeScore: data.isPlayed ? data.homeScore : null,
       awayScore: data.isPlayed ? data.awayScore : null,
     };
@@ -127,15 +127,15 @@ export default function MatchManagement() {
       homeScore: match.homeScore || undefined,
       awayScore: match.awayScore || undefined,
       isPlayed: match.isPlayed,
-      matchDate: match.matchDate ? match.matchDate.toString().slice(0, 16) : undefined,
+      matchDate: match.matchDate ? new Date(match.matchDate) : undefined,
       round: match.round || "",
     });
   };
 
-  const cancelEdit = () => {
+  function cancelEdit() {
     setEditingMatch(null);
     form.reset();
-  };
+  }
 
   const isPlayed = form.watch("isPlayed");
 
@@ -218,10 +218,10 @@ export default function MatchManagement() {
               </div>
 
               <div>
-                <Label htmlFor="matchDate">Fecha y Hora del Partido</Label>
+                <Label htmlFor="matchDate">Fecha del Partido</Label>
                 <Input
                   id="matchDate"
-                  type="datetime-local"
+                  type="date"
                   {...form.register("matchDate")}
                   data-testid="match-date-input"
                 />
