@@ -76,24 +76,12 @@ export default function FixtureTab() {
                   <div className="border-l-2 border-gray-400 h-4"></div>
                 </div>
                 
-                {/* SEMIFINALES */}
-                <div className="flex flex-col space-y-3">
-                  <div className="text-center font-bold text-gray-600">SEMIS</div>
+                {/* SEMIFINAL IZQUIERDA */}
+                <div className="flex flex-col justify-center">
+                  <div className="text-center font-bold text-gray-600 mb-3">SEMIS</div>
                   
                   <div className="border border-gray-400 bg-yellow-50 w-32">
                     <div className="text-xs text-center font-bold bg-yellow-200 p-1">G. C1 VS G. C2</div>
-                    <div className="flex justify-between border-b p-1">
-                      <span className="truncate">TBD</span>
-                      <span>-</span>
-                    </div>
-                    <div className="flex justify-between p-1">
-                      <span className="truncate">TBD</span>
-                      <span>-</span>
-                    </div>
-                  </div>
-                  
-                  <div className="border border-gray-400 bg-yellow-50 w-32">
-                    <div className="text-xs text-center font-bold bg-yellow-200 p-1">G. C3 VS G. C4</div>
                     <div className="flex justify-between border-b p-1">
                       <span className="truncate">TBD</span>
                       <span>-</span>
@@ -140,7 +128,24 @@ export default function FixtureTab() {
                   <div className="border-r-2 border-gray-400 h-4"></div>
                 </div>
                 
-                {/* CUARTOS DERECHA */}
+                {/* SEMIFINAL DERECHA */}
+                <div className="flex flex-col justify-center">
+                  <div className="border border-gray-400 bg-yellow-50 w-32 mt-8">
+                    <div className="text-xs text-center font-bold bg-yellow-200 p-1">G. C3 VS G. C4</div>
+                    <div className="flex justify-between border-b p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
+                    </div>
+                    <div className="flex justify-between p-1">
+                      <span className="truncate">TBD</span>
+                      <span>-</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* CUARTOS DERECHA - Segunda fila */}
+              <div className="flex justify-end mt-4">
                 <div className="flex flex-col space-y-3">
                   <div className="text-center font-bold text-gray-600">CUARTOS</div>
                   
