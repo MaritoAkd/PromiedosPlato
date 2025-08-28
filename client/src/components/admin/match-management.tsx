@@ -103,11 +103,12 @@ export default function MatchManagement() {
   });
 
   const onSubmit = (data: any) => {
-    const matchData = {
+    const matchData: any = {
       ...data,
       homeScore: data.isPlayed ? data.homeScore : null,
       awayScore: data.isPlayed ? data.awayScore : null,
     };
+    delete matchData.matchDate; // elimina el campo si existe
 
     if (editingMatch) {
       updateMatchMutation.mutate({ id: editingMatch.id, data: matchData });
