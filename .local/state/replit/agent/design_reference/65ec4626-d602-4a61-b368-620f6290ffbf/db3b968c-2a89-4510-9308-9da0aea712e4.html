@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copa Libertadores de Plato - PROMIEDOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                }
+            }
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(0 0% 100%);
+            --foreground: hsl(0 0% 20%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(0 0% 20%);
+            --primary: hsl(213 94% 68%);
+            --primary-foreground: hsl(0 0% 100%);
+            --secondary: hsl(0 0% 96%);
+            --secondary-foreground: hsl(0 0% 20%);
+            --muted: hsl(0 0% 96%);
+            --muted-foreground: hsl(0 0% 45%);
+            --accent: hsl(0 0% 96%);
+            --accent-foreground: hsl(0 0% 20%);
+            --border: hsl(0 0% 87%);
+            --input: hsl(0 0% 87%);
+            --ring: hsl(213 94% 68%);
+            --radius: 0.5rem;
+        }
+        
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            background-color: #ffffff;
+        }
+        
+        .promiedos-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 11px;
+        }
+        
+        .promiedos-table th {
+            background-color: #f0f0f0;
+            border: 1px solid #cccccc;
+            padding: 4px 6px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .promiedos-table td {
+            border: 1px solid #cccccc;
+            padding: 4px 6px;
+            text-align: center;
+        }
+        
+        .promiedos-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .promiedos-table tr:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .qualified {
+            background-color: #e8f5e8 !important;
+        }
+        
+        .sudamericana {
+            background-color: #fff3cd !important;
+        }
+        
+        .team-name {
+            text-align: left;
+            padding-left: 8px;
+        }
+        
+        .match-result {
+            font-size: 11px;
+            border: 1px solid #cccccc;
+            margin: 2px 0;
+            padding: 4px;
+            background-color: #f9f9f9;
+        }
+        
+        .bracket-match {
+            border: 1px solid #cccccc;
+            margin: 5px;
+            padding: 8px;
+            background-color: white;
+            font-size: 11px;
+        }
+        
+        .team-logo {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+        
+        .country-flag {
+            width: 16px;
+            height: 12px;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+        
+        .navigation-arrow {
+            background-color: #f0f0f0;
+            border: 1px solid #cccccc;
+            padding: 4px 8px;
+            cursor: pointer;
+            margin: 0 2px;
+        }
+        
+        .navigation-arrow:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .phase-button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            margin: 0 2px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .phase-button.active {
+            background-color: #004499;
+        }
+        
+        .phase-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground">
+    <!-- @COMPONENT: Header -->
+    <div class="w-full bg-white border-b border-border">
+        <div class="max-w-4xl mx-auto px-4 py-2">
+            <div class="flex items-center justify-between">
+                <!-- A classic football website logo with blue and white styling -->
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-primary">PROMIEDOS</h1>
+                    <span class="ml-2 text-sm text-muted-foreground">Fútbol Argentino</span>
+                </div>
+                <nav class="flex space-x-6">
+                    <a href="#" class="text-primary hover:underline text-sm">Inicio</a>
+                    <a href="#libertadores" class="text-primary hover:underline text-sm font-bold">Copa Libertadores de Plato</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: MainContent -->
+    <div class="max-w-4xl mx-auto px-4 py-4">
+        <!-- Main Page View -->
+        <div id="main-page" class="block">
+            <h2 class="text-lg font-bold mb-4">Torneos</h2>
+            <div class="bg-card border border-border rounded p-4">
+                <div class="flex items-center justify-between p-3 border-b hover:bg-muted cursor-pointer" onclick="showTournament()">
+                    <!-- South American cup competition trophy icon -->
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?ixlib=rb-4.0.3&auto=format&fit=crop&w=32&h=32" alt="Copa" class="w-8 h-8 mr-3">
+                        <div>
+                            <h3 class="font-bold text-sm">Copa Libertadores de Plato</h3>
+                            <p class="text-xs text-muted-foreground">Cuartos de Final - 2025</p>
+                        </div>
+                    </div>
+                    <span class="text-primary text-sm">Ver torneo →</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tournament Page View -->
+        <div id="tournament-page" class="hidden">
+            <h2 class="text-xl font-bold mb-2">COPA LIBERTADORES DE PLATO</h2>
+            
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-border mb-4">
+                <button class="px-4 py-2 text-sm font-bold border-b-2 border-primary text-primary" onclick="showTab('fixture')">FIXTURE Y TABLAS</button>
+                <button class="px-4 py-2 text-sm hover:text-primary ml-4" onclick="showTab('teams')">EQUIPOS Y ESTADÍSTICAS</button>
+                <button class="px-4 py-2 text-sm hover:text-primary ml-4" onclick="showTab('champions')">CAMPEONES</button>
+            </div>
+
+            <!-- Fixture y Tablas Tab -->
+            <div id="fixture-tab" class="block">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Cuadro de Eliminatoria -->
+                    <div class="lg:col-span-2">
+                        <h3 class="font-bold mb-3">CUADRO</h3>
+                        
+                        <!-- Phase Navigation -->
+                        <div class="mb-4 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="navigation-arrow" onclick="prevPhase()">←</span>
+                                <span class="mx-4 font-bold" id="current-phase">Cuartos de Final</span>
+                                <span class="navigation-arrow" onclick="nextPhase()">→</span>
+                            </div>
+                            <div class="flex">
+                                <button class="phase-button" onclick="showPhase('groups')">Grupos</button>
+                                <button class="phase-button active" onclick="showPhase('quarters')">Cuartos</button>
+                                <button class="phase-button" onclick="showPhase('semis')" disabled>Semis</button>
+                                <button class="phase-button" onclick="showPhase('final')" disabled>Final</button>
+                            </div>
+                        </div>
+
+                        <!-- Bracket Display -->
+                        <div id="quarters-bracket" class="block">
+                            <h4 class="font-bold mb-2">Cuartos de Final</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bracket-match">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center">
+                                            <!-- Argentina flag -->
+                                            <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="ARG" class="country-flag">
+                                            <span class="text-xs">River Plate</span>
+                                        </div>
+                                        <span class="font-bold">2</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <!-- Brazil flag -->
+                                            <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="BRA" class="country-flag">
+                                            <span class="text-xs">Palmeiras</span>
+                                        </div>
+                                        <span class="font-bold">1</span>
+                                    </div>
+                                    <div class="text-xs text-muted-foreground mt-1">23/09 - 19:30</div>
+                                </div>
+
+                                <div class="bracket-match">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center">
+                                            <!-- Argentina flag -->
+                                            <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="ARG" class="country-flag">
+                                            <span class="text-xs">Racing Club</span>
+                                        </div>
+                                        <span class="font-bold">3</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <!-- Argentina flag -->
+                                            <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="ARG" class="country-flag">
+                                            <span class="text-xs">Vélez Sarsfield</span>
+                                        </div>
+                                        <span class="font-bold">0</span>
+                                    </div>
+                                    <div class="text-xs text-muted-foreground mt-1">24/09 - 17:00</div>
+                                </div>
+
+                                <div class="bracket-match">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center">
+                                            <!-- Brazil flag -->
+                                            <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="BRA" class="country-flag">
+                                            <span class="text-xs">Flamengo</span>
+                                        </div>
+                                        <span class="font-bold">1</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <!-- Argentina flag -->
+                                            <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="ARG" class="country-flag">
+                                            <span class="text-xs">Estudiantes</span>
+                                        </div>
+                                        <span class="font-bold">2</span>
+                                    </div>
+                                    <div class="text-xs text-muted-foreground mt-1">25/09 - 19:30</div>
+                                </div>
+
+                                <div class="bracket-match">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center">
+                                            <!-- Brazil flag -->
+                                            <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="BRA" class="country-flag">
+                                            <span class="text-xs">São Paulo</span>
+                                        </div>
+                                        <span class="text-xs text-muted-foreground">vs</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <!-- Ecuador flag -->
+                                            <img src="https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="ECU" class="country-flag">
+                                            <span class="text-xs">LDU Quito</span>
+                                        </div>
+                                        <span class="text-xs text-muted-foreground">-</span>
+                                    </div>
+                                    <div class="text-xs text-muted-foreground mt-1">26/09 - 21:00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group Tables -->
+                        <div class="mt-6">
+                            <h4 class="font-bold mb-3">Fase de Grupos</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Grupo A -->
+                                <div>
+                                    <h5 class="font-bold text-sm mb-2">Grupo A</h5>
+                                    <table class="promiedos-table">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Equipos</th>
+                                                <th>PTS</th>
+                                                <th>J</th>
+                                                <th>G</th>
+                                                <th>E</th>
+                                                <th>P</th>
+                                                <th>GF</th>
+                                                <th>GC</th>
+                                                <th>DIF</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="qualified" data-mock="true">
+                                                <td>1</td>
+                                                <td class="team-name">
+                                                    <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="ARG" class="country-flag">
+                                                    River Plate
+                                                </td>
+                                                <td>18</td>
+                                                <td>6</td>
+                                                <td>6</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>12</td>
+                                                <td>2</td>
+                                                <td>+10</td>
+                                            </tr>
+                                            <tr class="qualified" data-mock="true">
+                                                <td>2</td>
+                                                <td class="team-name">
+                                                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="BRA" class="country-flag">
+                                                    Palmeiras
+                                                </td>
+                                                <td>12</td>
+                                                <td>6</td>
+                                                <td>4</td>
+                                                <td>0</td>
+                                                <td>2</td>
+                                                <td>8</td>
+                                                <td>5</td>
+                                                <td>+3</td>
+                                            </tr>
+                                            <tr class="sudamericana" data-mock="true">
+                                                <td>3</td>
+                                                <td class="team-name">
+                                                    <img src="https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="ECU" class="country-flag">
+                                                    LDU Quito
+                                                </td>
+                                                <td>6</td>
+                                                <td>6</td>
+                                                <td>2</td>
+                                                <td>0</td>
+                                                <td>4</td>
+                                                <td>5</td>
+                                                <td>8</td>
+                                                <td>-3</td>
+                                            </tr>
+                                            <tr data-mock="true">
+                                                <td>4</td>
+                                                <td class="team-name">
+                                                    <img src="https://pixabay.com/get/g4e409aed6662f77ad1ac6466d22e49d39573075115f48c3c47ac7046c23b2fec5ea0c7c41fc83ef02cd5dbfa3e7579fbcfeb1c5d9b2b693012e1cd0b5548e3bb_1280.jpg" alt="COL" class="country-flag">
+                                                    Independiente Medellín
+                                                </td>
+                                                <td>0</td>
+                                                <td>6</td>
+                                                <td>0</td>
+                                                <td>0</td>
+                                                <td>6</td>
+                                                <td>2</td>
+                                                <td>12</td>
+                                                <td>-10</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Grupo B -->
+                                <div>
+                                    <h5 class="font-bold text-sm mb-2">Grupo B</h5>
+                                    <table class="promiedos-table">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Equipos</th>
+                                                <th>PTS</th>
+                                                <th>J</th>
+                                                <th>G</th>
+                                                <th>E</th>
+                                                <th>P</th>
+                                                <th>GF</th>
+                                                <th>GC</th>
+                                                <th>DIF</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="qualified" data-mock="true">
+                                                <td>1</td>
+                                                <td class="team-name">
+                                                    <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="ARG" class="country-flag">
+                                                    Racing Club
+                                                </td>
+                                                <td>15</td>
+                                                <td>6</td>
+                                                <td>5</td>
+                                                <td>0</td>
+                                                <td>1</td>
+                                                <td>14</td>
+                                                <td>4</td>
+                                                <td>+10</td>
+                                            </tr>
+                                            <tr class="qualified" data-mock="true">
+                                                <td>2</td>
+                                                <td class="team-name">
+                                                    <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="ARG" class="country-flag">
+                                                    Vélez Sarsfield
+                                                </td>
+                                                <td>10</td>
+                                                <td>6</td>
+                                                <td>3</td>
+                                                <td>1</td>
+                                                <td>2</td>
+                                                <td>9</td>
+                                                <td>7</td>
+                                                <td>+2</td>
+                                            </tr>
+                                            <tr class="sudamericana" data-mock="true">
+                                                <td>3</td>
+                                                <td class="team-name">
+                                                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=16&h=12" alt="BRA" class="country-flag">
+                                                    Flamengo
+                                                </td>
+                                                <td>7</td>
+                                                <td>6</td>
+                                                <td>2</td>
+                                                <td>1</td>
+                                                <td>3</td>
+                                                <td>6</td>
+                                                <td>8</td>
+                                                <td>-2</td>
+                                            </tr>
+                                            <tr data-mock="true">
+                                                <td>4</td>
+                                                <td class="team-name">
+                                                    <img src="https://pixabay.com/get/g4e409aed6662f77ad1ac6466d22e49d39573075115f48c3c47ac7046c23b2fec5ea0c7c41fc83ef02cd5dbfa3e7579fbcfeb1c5d9b2b693012e1cd0b5548e3bb_1280.jpg" alt="URU" class="country-flag">
+                                                    Peñarol
+                                                </td>
+                                                <td>4</td>
+                                                <td>6</td>
+                                                <td>1</td>
+                                                <td>1</td>
+                                                <td>4</td>
+                                                <td>5</td>
+                                                <td>15</td>
+                                                <td>-10</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Legend -->
+                            <div class="mt-4 text-xs">
+                                <div class="flex items-center mb-1">
+                                    <div class="w-4 h-4 bg-green-100 border mr-2"></div>
+                                    <span>Cuartos de Final</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-yellow-100 border mr-2"></div>
+                                    <span>Copa Sudamericana</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Sidebar -->
+                    <div>
+                        <!-- Team Statistics -->
+                        <div class="mb-6">
+                            <h4 class="font-bold mb-3">ESTADÍSTICAS</h4>
+                            
+                            <div class="mb-4">
+                                <h5 class="font-bold text-sm mb-2">Goles Anotados</h5>
+                                <table class="promiedos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipo</th>
+                                            <th>GF</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-mock="true">
+                                        <tr>
+                                            <td class="team-name">Racing Club</td>
+                                            <td>14</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="team-name">River Plate</td>
+                                            <td>12</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="team-name">Vélez Sarsfield</td>
+                                            <td>9</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="team-name">Palmeiras</td>
+                                            <td>8</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div>
+                                <h5 class="font-bold text-sm mb-2">Menor Goles Recibidos</h5>
+                                <table class="promiedos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipo</th>
+                                            <th>GC</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-mock="true">
+                                        <tr>
+                                            <td class="team-name">River Plate</td>
+                                            <td>2</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="team-name">Racing Club</td>
+                                            <td>4</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="team-name">Palmeiras</td>
+                                            <td>5</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="team-name">Vélez Sarsfield</td>
+                                            <td>7</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipos y Estadísticas Tab -->
+            <div id="teams-tab" class="hidden">
+                <h3 class="font-bold mb-4">EQUIPOS Y ESTADÍSTICAS</h3>
+                
+                <!-- Teams Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+                    <!-- @MAP: teams.map(team => ( -->
+                    <div class="bg-card border border-border rounded p-3 hover:bg-muted cursor-pointer text-center" onclick="showTeamDetails('river')" data-mock="true">
+                        <!-- Argentina flag -->
+                        <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=32&h=24" alt="Argentina" class="w-8 h-6 mx-auto mb-2">
+                        <div class="text-xs font-bold">River Plate</div>
+                    </div>
+                    
+                    <div class="bg-card border border-border rounded p-3 hover:bg-muted cursor-pointer text-center" onclick="showTeamDetails('racing')" data-mock="true">
+                        <!-- Argentina flag -->
+                        <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=32&h=24" alt="Argentina" class="w-8 h-6 mx-auto mb-2">
+                        <div class="text-xs font-bold">Racing Club</div>
+                    </div>
+                    
+                    <div class="bg-card border border-border rounded p-3 hover:bg-muted cursor-pointer text-center" onclick="showTeamDetails('velez')" data-mock="true">
+                        <!-- Argentina flag -->
+                        <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=32&h=24" alt="Argentina" class="w-8 h-6 mx-auto mb-2">
+                        <div class="text-xs font-bold">Vélez Sarsfield</div>
+                    </div>
+                    
+                    <div class="bg-card border border-border rounded p-3 hover:bg-muted cursor-pointer text-center" onclick="showTeamDetails('palmeiras')" data-mock="true">
+                        <!-- Brazil flag -->
+                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=32&h=24" alt="Brazil" class="w-8 h-6 mx-auto mb-2">
+                        <div class="text-xs font-bold">Palmeiras</div>
+                    </div>
+                    
+                    <div class="bg-card border border-border rounded p-3 hover:bg-muted cursor-pointer text-center" onclick="showTeamDetails('flamengo')" data-mock="true">
+                        <!-- Brazil flag -->
+                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=32&h=24" alt="Brazil" class="w-8 h-6 mx-auto mb-2">
+                        <div class="text-xs font-bold">Flamengo</div>
+                    </div>
+                    
+                    <div class="bg-card border border-border rounded p-3 hover:bg-muted cursor-pointer text-center" onclick="showTeamDetails('sao-paulo')" data-mock="true">
+                        <!-- Brazil flag -->
+                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=32&h=24" alt="Brazil" class="w-8 h-6 mx-auto mb-2">
+                        <div class="text-xs font-bold">São Paulo</div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+
+                <!-- Team Details Panel -->
+                <div id="team-details" class="hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Próximos Partidos -->
+                        <div class="bg-card border border-border rounded p-4">
+                            <h4 class="font-bold text-sm mb-3">Próximos Partidos</h4>
+                            <div class="space-y-2" data-mock="true">
+                                <div class="text-xs border-b pb-2">
+                                    <div class="flex justify-between">
+                                        <span>vs Palmeiras</span>
+                                        <span>23/09</span>
+                                    </div>
+                                    <div class="text-muted-foreground">Copa Libertadores</div>
+                                </div>
+                                <div class="text-xs border-b pb-2">
+                                    <div class="flex justify-between">
+                                        <span>vs Boca Juniors</span>
+                                        <span>28/09</span>
+                                    </div>
+                                    <div class="text-muted-foreground">Liga Profesional</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Últimos Resultados -->
+                        <div class="bg-card border border-border rounded p-4">
+                            <h4 class="font-bold text-sm mb-3">Últimos Resultados</h4>
+                            <div class="space-y-2" data-mock="true">
+                                <div class="text-xs border-b pb-2">
+                                    <div class="flex justify-between">
+                                        <span>River 2-1 Independiente</span>
+                                        <span>15/09</span>
+                                    </div>
+                                    <div class="text-muted-foreground">Liga Profesional</div>
+                                </div>
+                                <div class="text-xs border-b pb-2">
+                                    <div class="flex justify-between">
+                                        <span>Godoy Cruz 0-3 River</span>
+                                        <span>10/09</span>
+                                    </div>
+                                    <div class="text-muted-foreground">Liga Profesional</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información del Club -->
+                        <div class="bg-card border border-border rounded p-4">
+                            <h4 class="font-bold text-sm mb-3">Información del Club</h4>
+                            <div class="space-y-2 text-xs" data-mock="true">
+                                <div><strong>Apodo:</strong> Los Millonarios</div>
+                                <div><strong>Fundación:</strong> 25 de mayo de 1901</div>
+                                <div><strong>Estadio:</strong> Monumental</div>
+                                <div><strong>Ciudad:</strong> Buenos Aires, Argentina</div>
+                            </div>
+                        </div>
+
+                        <!-- Estadísticas Personales -->
+                        <div class="bg-card border border-border rounded p-4">
+                            <h4 class="font-bold text-sm mb-3">Estadísticas Históricas</h4>
+                            <div class="space-y-2 text-xs" data-mock="true">
+                                <div><strong>Mayor cantidad de goles:</strong> 45 (2019)</div>
+                                <div><strong>Mayor vallas invictas:</strong> 12 partidos (2018)</div>
+                                <div><strong>Copas Libertadores:</strong> 4 títulos</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campeones Tab -->
+            <div id="champions-tab" class="hidden">
+                <h3 class="font-bold mb-4">CAMPEONES</h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Últimos Campeones -->
+                    <div>
+                        <h4 class="font-bold text-sm mb-3">Últimos Campeones</h4>
+                        <table class="promiedos-table">
+                            <thead>
+                                <tr>
+                                    <th>Año</th>
+                                    <th>Campeón</th>
+                                    <th>Finalista</th>
+                                </tr>
+                            </thead>
+                            <tbody data-mock="true">
+                                <tr>
+                                    <td>2024</td>
+                                    <td class="team-name">River Plate</td>
+                                    <td class="team-name">Palmeiras</td>
+                                </tr>
+                                <tr>
+                                    <td>2023</td>
+                                    <td class="team-name">Racing Club</td>
+                                    <td class="team-name">Flamengo</td>
+                                </tr>
+                                <tr>
+                                    <td>2022</td>
+                                    <td class="team-name">Vélez Sarsfield</td>
+                                    <td class="team-name">São Paulo</td>
+                                </tr>
+                                <tr>
+                                    <td>2021</td>
+                                    <td class="team-name">Estudiantes</td>
+                                    <td class="team-name">LDU Quito</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Ranking de Copas -->
+                    <div>
+                        <h4 class="font-bold text-sm mb-3">Ranking de Copas</h4>
+                        <table class="promiedos-table">
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Equipo</th>
+                                    <th>Títulos</th>
+                                </tr>
+                            </thead>
+                            <tbody data-mock="true">
+                                <tr>
+                                    <td>1</td>
+                                    <td class="team-name">River Plate</td>
+                                    <td>3</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td class="team-name">Racing Club</td>
+                                    <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td class="team-name">Vélez Sarsfield</td>
+                                    <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td class="team-name">Estudiantes</td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td class="team-name">Palmeiras</td>
+                                    <td>1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: MainContent -->
+
+    <!-- @COMPONENT: Footer -->
+    <div class="w-full bg-muted border-t border-border mt-8">
+        <div class="max-w-4xl mx-auto px-4 py-4 text-center">
+            <p class="text-xs text-muted-foreground">Creada por marito</p>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        
+        (function() {
+            let currentPhase = 'quarters';
+            let currentTab = 'fixture';
+            
+            window.showTournament = function() {
+                document.getElementById('main-page').classList.add('hidden');
+                document.getElementById('tournament-page').classList.remove('hidden');
+            };
+            
+            window.showTab = function(tab) {
+                // Hide all tabs
+                document.getElementById('fixture-tab').classList.add('hidden');
+                document.getElementById('teams-tab').classList.add('hidden');
+                document.getElementById('champions-tab').classList.add('hidden');
+                
+                // Show selected tab
+                document.getElementById(tab + '-tab').classList.remove('hidden');
+                
+                // Update tab buttons
+                const buttons = document.querySelectorAll('.flex.border-b button');
+                buttons.forEach(btn => {
+                    btn.classList.remove('border-b-2', 'border-primary', 'text-primary', 'font-bold');
+                    btn.classList.add('hover:text-primary');
+                });
+                
+                event.target.classList.add('border-b-2', 'border-primary', 'text-primary', 'font-bold');
+                event.target.classList.remove('hover:text-primary');
+                
+                currentTab = tab;
+            };
+            
+            window.showPhase = function(phase) {
+                currentPhase = phase;
+                
+                // Update phase display
+                const phaseNames = {
+                    'groups': 'Fase de Grupos',
+                    'quarters': 'Cuartos de Final', 
+                    'semis': 'Semifinales',
+                    'final': 'Final'
+                };
+                
+                document.getElementById('current-phase').textContent = phaseNames[phase];
+                
+                // Update active button
+                const buttons = document.querySelectorAll('.phase-button');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            };
+            
+            window.nextPhase = function() {
+                const phases = ['groups', 'quarters', 'semis', 'final'];
+                const currentIndex = phases.indexOf(currentPhase);
+                if (currentIndex < phases.length - 1) {
+                    const nextPhase = phases[currentIndex + 1];
+                    // Only allow if phase is unlocked (has played matches)
+                    if (nextPhase === 'quarters' || nextPhase === 'groups') {
+                        showPhase(nextPhase);
+                    }
+                }
+            };
+            
+            window.prevPhase = function() {
+                const phases = ['groups', 'quarters', 'semis', 'final'];
+                const currentIndex = phases.indexOf(currentPhase);
+                if (currentIndex > 0) {
+                    const prevPhase = phases[currentIndex - 1];
+                    showPhase(prevPhase);
+                }
+            };
+            
+            window.showTeamDetails = function(teamId) {
+                const detailsPanel = document.getElementById('team-details');
+                detailsPanel.classList.remove('hidden');
+                
+                // TODO: Load team-specific data based on teamId
+                // This would fetch team details from database
+            };
+        })();
+    </script>
+</body>
+</html>
