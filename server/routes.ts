@@ -125,7 +125,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const team = await storage.createTeam(validatedData);
       res.json(team);
     } catch (error) {
-      res.status(400).json({ message: "Invalid team data" });
+      console.error("Error al crear equipo:", error); // Log detallado del error
+      res.status(400).json({ 
+        message: "Invalid team data", 
+        error: error instanceof Error ? error.message : String(error) // Detalles del error
+      });
     }
   });
 
