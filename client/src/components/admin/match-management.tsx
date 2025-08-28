@@ -107,6 +107,7 @@ export default function MatchManagement() {
       ...data,
       homeScore: data.isPlayed ? data.homeScore : null,
       awayScore: data.isPlayed ? data.awayScore : null,
+      groupId: data.groupId || null, // Convertir cadena vacía a null
     };
     delete matchData.matchDate; // elimina el campo si existe
 
